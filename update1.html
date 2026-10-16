@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="ru" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЕГЭ Русский язык — Тренажёр орфографии</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    },
+                    keyframes: {
+                        shake: {
+                            '0%, 100%': { transform: 'translateX(0)' },
+                            '20%, 60%': { transform: 'translateX(-8px)' },
+                            '40%, 80%': { transform: 'translateX(8px)' }
+                        },
+                        pop: {
+                            '0%': { transform: 'scale(0.95)', opacity: '0.8' },
+                            '50%': { transform: 'scale(1.03)' },
+                            '100%': { transform: 'scale(1)', opacity: '1' }
+                        }
+                    },
+                    animation: {
+                        shake: 'shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both',
+                        pop: 'pop 0.25s ease-out forwards'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .tap-highlight-transparent { -webkit-tap-highlight-color: transparent; }
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.02); }
+        }
+        .ai-glow {
+            box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.35);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Верхняя панель (Header) -->
+    <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h1 class="text-base font-bold leading-tight flex items-center gap-2">
+                        ЕГЭ Тренажёр
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-semibold">Орфография</span>
+                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-cloud"></i> Облако
+                        </span>
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Задания 9 — 12 • С поддержкой ИИ-репетитора</p>
+                </div>
+            </div>
+
+            <!-- Верхняя статистика и кнопки -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div title="Текущая серия правильных ответов" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200/60 dark:border-amber-900/50 text-amber-600 dark:text-amber-400 font-bold text-sm">
+                    <i class="fa-solid fa-fire text-amber-500 animate-pulse"></i>
+                    <span id="streak-counter">0</span>
+                </div>
+
+                <div title="Общая точность" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-sm">
+                    <i class="fa-solid fa-bullseye text-indigo-500"></i>
+                    <span id="accuracy-counter">100%</span>
+                </div>
+
+                <!-- Кнопка Профиля / Авторизации -->
+                <div id="auth-header-container" class="relative">
+                    <button onclick="handleProfileClick()" id="user-profile-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs transition cursor-pointer border border-slate-200 dark:border-slate-700">
+                        <div id="user-avatar-circle" class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold uppercase">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <span id="user-display-name" class="max-w-[90px] truncate">Войти</span>
+                    </button>
+
+                    <!-- Выпадающее меню профиля (когда авторизован) -->
+                    <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 py-1.5 z-40 text-xs animate-pop">
+                        <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                            <p class="font-bold text-slate-900 dark:text-white truncate" id="dropdown-user-name">Пользователь</p>
+                            <p class="text-[10px] text-slate-400 font-mono truncate" id="dropdown-user-id">ID: ...</p>
+                            <div class="mt-1 flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Сохраняется в облаке
+                            </div>
+                        </div>
+                        <button onclick="toggleLeaderboardModal(true)" class="w-full text-left px-3 py-2 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 font-medium flex items-center gap-2 cursor-pointer transition">
+                            <i class="fa-solid fa-trophy"></i>
+                            <span>Таблица лидеров</span>
+                        </button>
+                        <button onclick="logoutUser()" class="w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-medium flex items-center gap-2 cursor-pointer transition">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            <span>Выйти из аккаунта</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Кнопка рейтинга / таблицы лидеров -->
+                <button onclick="toggleLeaderboardModal(true)" title="Общий рейтинг пользователей" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-amber-500 transition cursor-pointer">
+                    <i class="fa-solid fa-trophy"></i>
+                </button>
+
+                <!-- Кнопка вызова генератора заданий ИИ -->
+                <button onclick="generateAIQuestion()" id="generate-ai-btn" title="Сгенерировать новое задание с помощью нейросети" class="relative px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold text-xs transition shadow-sm shadow-indigo-500/20 flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-sparkles"></i>
+                    <span class="hidden md:inline">ИИ-вопрос</span>
+                </button>
+
+                <!-- Кнопка ошибок -->
+                <button onclick="toggleMistakesModal(true)" id="mistakes-btn" title="Работа над ошибками" class="relative p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition cursor-pointer">
+                    <i class="fa-solid fa-bookmark"></i>
+                    <span id="mistakes-badge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                </button>
+
+                <!-- Переключатель темы -->
+                <button onclick="toggleDarkMode()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition cursor-pointer">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контейнер -->
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-6 flex flex-col justify-between">
+
+        <!-- Селектор режимов (Вкладки) -->
+        <div class="mb-4">
+            <div class="flex items-center gap-1.5 p-1 bg-slate-200/70 dark:bg-slate-900 rounded-2xl overflow-x-auto text-xs sm:text-sm font-semibold select-none scrollbar-none">
+                <button onclick="setMode('mix')" id="tab-mix" class="mode-tab flex-1 min-w-[75px] py-2 px-3 rounded-xl transition text-center whitespace-nowrap bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400 font-bold">
+                    🎲 Микс
+                </button>
+                <button onclick="setMode(9)" id="tab-9" class="mode-tab flex-1 min-w-[75px] py-2 px-3 rounded-xl transition text-center whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                    Задание 9 <span class="hidden sm:inline font-normal text-[11px] opacity-75">(Корни)</span>
+                </button>
+                <button onclick="setMode(10)" id="tab-10" class="mode-tab flex-1 min-w-[75px] py-2 px-3 rounded-xl transition text-center whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                    Задание 10 <span class="hidden sm:inline font-normal text-[11px] opacity-75">(Приставки)</span>
+                </button>
+                <button onclick="setMode(11)" id="tab-11" class="mode-tab flex-1 min-w-[75px] py-2 px-3 rounded-xl transition text-center whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                    Задание 11 <span class="hidden sm:inline font-normal text-[11px] opacity-75">(Суффиксы)</span>
+                </button>
+                <button onclick="setMode(12)" id="tab-12" class="mode-tab flex-1 min-w-[75px] py-2 px-3 rounded-xl transition text-center whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                    Задание 12 <span class="hidden sm:inline font-normal text-[11px] opacity-75">(Окончания)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Центральная игровая зона (Карточка слова) -->
+        <div class="flex-1 flex flex-col justify-center items-center py-4">
+            
+            <!-- Информационная плашка активного режима -->
+            <div class="flex items-center justify-between w-full max-w-3xl mb-3 px-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                <div class="flex items-center gap-2">
+                    <span id="card-task-badge" class="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200/50 dark:border-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-semibold">
+                        Задание 10
+                    </span>
+                    <span id="ai-generated-badge" class="hidden px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300 font-medium text-[11px]">
+                        ✨ от Gemini
+                    </span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="askAITutor()" id="ai-quick-btn" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition flex items-center gap-1 text-slate-500 font-semibold cursor-pointer">
+                        <i class="fa-solid fa-wand-magic-sparkles text-indigo-500 text-xs"></i>
+                        <span>ИИ-Пояснение</span>
+                    </button>
+                    <span id="session-counter">Вопрос: 1</span>
+                </div>
+            </div>
+
+            <!-- Главная интерактивная карточка без скроллбаров с адаптивной строкой -->
+            <div id="word-card" class="w-full max-w-3xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-10 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-300 text-center flex flex-col items-center justify-center relative min-h-[230px]">
+                
+                <!-- Слово с пропуском -->
+                <div id="word-display" class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-wide text-slate-900 dark:text-white my-3 select-none flex items-center justify-center whitespace-nowrap overflow-hidden max-w-full leading-normal px-2">
+                    пр<span class="inline-block border-b-4 border-indigo-500 text-indigo-500 font-black animate-pulse mx-0.5">..</span>красный
+                </div>
+
+                <!-- Подсказка ввода с клавиатуры -->
+                <p id="keyboard-hint" class="text-xs text-slate-400 dark:text-slate-500 mt-2 font-medium">
+                    Нажмите букву на экране или соответствующую клавишу на клавиатуре
+                </p>
+
+                <!-- Блок правила при ошибке -->
+                <div id="rule-box" class="hidden mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-left w-full max-w-xl animate-pop">
+                    <!-- Карточка с правилом и значением слова -->
+                    <div class="space-y-2.5">
+                        <!-- Лексическое значение слова / словосочетания -->
+                        <div class="flex items-start gap-2.5 p-3 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/60 dark:border-indigo-900/50">
+                            <i class="fa-solid fa-book-open text-indigo-500 text-sm mt-0.5"></i>
+                            <div class="flex-1">
+                                <div class="text-[11px] font-bold text-indigo-800 dark:text-indigo-300 uppercase tracking-wider mb-0.5">Значение слова / фразы:</div>
+                                <div id="meaning-text" class="text-xs sm:text-sm text-indigo-950 dark:text-indigo-200/90 leading-relaxed font-medium">
+                                    <!-- Заполняется динамически -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Орфографическое правило ЕГЭ -->
+                        <div class="flex items-start gap-2.5 p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-900/50">
+                            <i class="fa-solid fa-lightbulb text-amber-500 text-lg mt-0.5"></i>
+                            <div class="flex-1">
+                                <div class="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-0.5">Орфографическое правило:</div>
+                                <div id="rule-text" class="text-xs sm:text-sm text-amber-950 dark:text-amber-200/90 leading-relaxed font-medium">
+                                    Приставка ПРЕ- в значении высшей степени («очень»).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Интерактивная плашка вызова ИИ прямо из ошибки -->
+                    <div class="mt-3 flex gap-2">
+                        <button onclick="askAITutor()" class="flex-1 py-2.5 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/80 text-indigo-700 dark:text-indigo-300 font-semibold text-xs transition flex items-center justify-center gap-1.5 border border-indigo-200/60 dark:border-indigo-800 cursor-pointer">
+                            <i class="fa-solid fa-brain text-indigo-500"></i>
+                            <span>Спросить у ИИ: почему так и как запомнить?</span>
+                        </button>
+                    </div>
+
+                    <button onclick="nextCard()" class="mt-3 w-full py-3 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 text-white font-bold text-sm transition shadow-lg flex items-center justify-center gap-2 cursor-pointer tap-highlight-transparent">
+                        <span>Понятно, дальше</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Кнопки выбора букв -->
+            <div id="options-container" class="w-full max-w-md grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+                <!-- Генерируются динамически через JS -->
+            </div>
+
+        </div>
+
+        <!-- Нижняя панель статистики (Footer KPI) -->
+        <footer class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-4">
+                    <span>Всего пройдено: <strong id="stat-total" class="text-slate-700 dark:text-slate-300">0</strong></span>
+                    <span>Верно: <strong id="stat-correct" class="text-emerald-600 dark:text-emerald-400">0</strong></span>
+                    <span>Рекорд серии: <strong id="stat-max-streak" class="text-amber-600 dark:text-amber-400">0 🔥</strong></span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="generateAIQuestion()" class="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Сгенерировать вопрос с ИИ
+                    </button>
+                    <button onclick="toggleAdminAuthModal(true)" title="Вход в Панель учителя / администратора (или Ctrl+Shift+A)" class="hover:text-indigo-500 transition flex items-center gap-1.5 font-medium px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                        <i class="fa-solid fa-shield-halved text-indigo-500"></i>
+                        <span>Панель учителя</span>
+                    </button>
+                    <button onclick="resetStats()" class="hover:text-rose-500 transition underline underline-offset-2 cursor-pointer">
+                        Сбросить статистику
+                    </button>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Модальное окно: ИИ-Репетитор (Gemini AI Explanation) -->
+    <div id="ai-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-indigo-200/50 dark:border-indigo-900/60 max-w-xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden ai-glow">
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-indigo-50/50 via-white to-purple-50/50 dark:from-indigo-950/30 dark:via-slate-900 dark:to-purple-950/30">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center text-sm shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-sparkles"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm sm:text-base flex items-center gap-1.5">
+                            ИИ-Репетитор по орфографии
+                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-semibold">Gemini 3 Flash</span>
+                        </h3>
+                        <p id="ai-modal-word" class="text-xs text-slate-500 dark:text-slate-400">Анализ слова...</p>
+                    </div>
+                </div>
+                <button onclick="toggleAIModal(false)" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div id="ai-modal-body" class="p-5 overflow-y-auto space-y-4 text-sm leading-relaxed">
+                <!-- Контент или спиннер -->
+            </div>
+
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 flex items-center justify-between">
+                <button onclick="askAITutor(true)" id="ai-regenerate-btn" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-right"></i> Другой пример / мнемоника
+                </button>
+                <button onclick="toggleAIModal(false)" class="py-2 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Регистрация и Авторизация -->
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-6 shadow-2xl overflow-hidden animate-pop relative">
+            <button onclick="toggleAuthModal(false)" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg cursor-pointer">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Заголовок модалки -->
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-200/60 dark:border-indigo-900/50 text-indigo-600 flex items-center justify-center text-xl shadow-inner">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <h3 id="auth-title" class="text-lg font-bold text-slate-900 dark:text-white">Вход в профиль</h3>
+                <p id="auth-subtitle" class="text-xs text-slate-400 mt-1">Сохраняйте личный прогресс и ошибки</p>
+            </div>
+
+            <!-- Вкладки: Вход / Регистрация -->
+            <div class="flex p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl mb-4 text-xs font-semibold">
+                <button onclick="switchAuthTab('login')" id="auth-tab-login" class="flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400 transition cursor-pointer">
+                    Вход
+                </button>
+                <button onclick="switchAuthTab('signup')" id="auth-tab-signup" class="flex-1 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition cursor-pointer">
+                    Регистрация
+                </button>
+            </div>
+
+            <!-- Форма авторизации -->
+            <form onsubmit="handleAuthSubmit(event)" class="space-y-3.5">
+                <!-- Поле: Имя (только для регистрации) -->
+                <div id="auth-name-group" class="hidden">
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Ваше имя или никнейм</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                        <input type="text" id="auth-name-input" placeholder="Например: Александр" class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-white">
+                    </div>
+                </div>
+
+                <!-- Поле: Email -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Email</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                        <input type="email" id="auth-email-input" required placeholder="name@example.com" class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-white">
+                    </div>
+                </div>
+
+                <!-- Поле: Пароль -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Пароль</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                        <input type="password" id="auth-password-input" required placeholder="••••••••" minlength="4" class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-white">
+                    </div>
+                </div>
+
+                <!-- Ошибка формы -->
+                <div id="auth-error" class="hidden text-[11px] font-medium text-rose-500 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200/50 dark:border-rose-900/50">
+                    <!-- Заполняется в JS -->
+                </div>
+
+                <!-- Кнопка подтверждения -->
+                <button type="submit" id="auth-submit-btn" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition shadow-md shadow-indigo-500/20 cursor-pointer mt-2">
+                    Войти
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно «Работа над ошибками» -->
+    <div id="mistakes-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-950/80 text-rose-600 flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-bookmark"></i>
+                    </div>
+                    <h3 class="font-bold text-base">Мои ошибки (<span id="modal-mistakes-count">0</span>)</h3>
+                </div>
+                <button onclick="toggleMistakesModal(false)" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Список ошибочных слов -->
+            <div id="mistakes-list" class="flex-1 overflow-y-auto p-5 space-y-3">
+                <!-- Заполняется динамически -->
+            </div>
+
+            <!-- Нижняя панель действий модалки -->
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex items-center justify-between gap-3">
+                <button onclick="clearMistakes()" class="text-xs text-rose-600 hover:text-rose-700 font-semibold px-3 py-2 cursor-pointer">
+                    Очистить список
+                </button>
+                <button onclick="startMistakesMode()" id="practice-mistakes-btn" class="py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition shadow-md shadow-indigo-500/20 disabled:opacity-50 disabled:pointer-events-none cursor-pointer">
+                    Отработать ошибки
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно «Таблица лидеров в облаке» -->
+    <div id="leaderboard-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-pop">
+            <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-amber-500/10 via-transparent to-indigo-500/10">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center text-base shadow-md shadow-amber-500/20">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base">Таблица лидеров</h3>
+                        <p class="text-xs text-slate-400">Общий рейтинг всех пользователей тренажёра</p>
+                    </div>
+                </div>
+                <button onclick="toggleLeaderboardModal(false)" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="leaderboard-list" class="flex-1 overflow-y-auto p-5 space-y-2.5">
+                <!-- Заполняется динамически -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Вход в Панель Администратора -->
+    <div id="admin-auth-modal" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-6 shadow-2xl overflow-hidden animate-pop relative">
+            <button onclick="toggleAdminAuthModal(false)" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg cursor-pointer">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="text-center mb-5">
+                <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-200/60 dark:border-indigo-900/50 text-indigo-600 flex items-center justify-center text-xl shadow-inner">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Панель учителя</h3>
+                <p class="text-xs text-slate-400 mt-1">Доступ к данным учеников и аналитике</p>
+            </div>
+
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Пароль администратора</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-key absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                        <input type="password" id="admin-pass-input" placeholder="Введите пароль..." required autofocus class="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-indigo-500 text-slate-900 dark:text-white">
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1.5">По умолчанию пароль: <code class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono text-indigo-500 font-bold">admin123</code></p>
+                </div>
+
+                <div id="admin-auth-error" class="hidden text-[11px] font-medium text-rose-500 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200/50">
+                    Неверный пароль администратора.
+                </div>
+
+                <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition shadow-md shadow-indigo-500/20 cursor-pointer">
+                    Открыть дашборд
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Большое модальное окно: Панель Администратора / Учителя -->
+    <div id="admin-dashboard-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-3 sm:p-5">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-pop">
+            
+            <!-- Шапка админки -->
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-indigo-500/10 via-slate-500/5 to-purple-500/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-lg shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-extrabold text-base sm:text-lg flex items-center gap-2">
+                            Панель администратора / Учителя
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-bold">Онлайн</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Сводная статистика по всем ученикам и сложным словам</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportStudentsToCSV()" title="Скачать таблицу учеников в Excel / CSV" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800 font-semibold text-xs transition cursor-pointer">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>Экспорт CSV</span>
+                    </button>
+                    <button onclick="toggleAdminDashboard(false)" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg cursor-pointer">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Тело админки (скроллируемое) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+                
+                <!-- KPI Карточки -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="p-3.5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/50 dark:border-indigo-900/40">
+                        <div class="text-[11px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider mb-1">Всего учеников</div>
+                        <div id="admin-kpi-students" class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">0</div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/50 dark:border-emerald-900/40">
+                        <div class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">Решено заданий</div>
+                        <div id="admin-kpi-total-answers" class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">0</div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-900/40">
+                        <div class="text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1">Рекорд серии</div>
+                        <div id="admin-kpi-max-streak" class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">0 🔥</div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/50 dark:border-purple-900/40">
+                        <div class="text-[11px] font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider mb-1">Средняя точность</div>
+                        <div id="admin-kpi-accuracy" class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">0%</div>
+                    </div>
+                </div>
+
+                <!-- Блок: Поиск и Таблица учеников -->
+                <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5">
+                        <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-users text-indigo-500"></i>
+                            <span>Список зарегистрированных учеников</span>
+                        </h3>
+                        <div class="relative max-w-xs w-full">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            <input type="text" id="admin-search-input" oninput="filterAdminStudents()" placeholder="Поиск по имени или ID..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-indigo-500 text-slate-900 dark:text-white">
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200/70 dark:border-slate-800">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-700">
+                                <tr>
+                                    <th class="p-2.5">Ученик / ID</th>
+                                    <th class="p-2.5">Верно</th>
+                                    <th class="p-2.5">Всего</th>
+                                    <th class="p-2.5">Стрик</th>
+                                    <th class="p-2.5">Точность</th>
+                                    <th class="p-2.5">Ошибок</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-students-tbody" class="divide-y divide-slate-200/60 dark:divide-slate-800">
+                                <!-- Заполняется через JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Блок: Топ ошибок по заданиям ЕГЭ -->
+                <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4">
+                    <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2 mb-3">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+                        <span>Слова с наибольшим числом ошибок (Ловушки ЕГЭ)</span>
+                    </h3>
+                    <div id="admin-trouble-words" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <!-- Заполняется через JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Подвал админки -->
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <button onclick="exportStudentsToCSV()" class="sm:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-semibold cursor-pointer">
+                    <i class="fa-solid fa-file-excel"></i> Экспорт CSV
+                </button>
+                <div class="text-slate-400 text-[11px]">
+                    Пароль можно изменить в коде скрипта (<code class="text-indigo-400">ADMIN_PASSWORD</code>)
+                </div>
+                <button onclick="toggleAdminDashboard(false)" class="py-2 px-4 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-bold transition cursor-pointer">
+                    Закрыть панель
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Основной классический скрипт: База данных, игровая логика, UI и глобальные обработчики -->
+    <script>
+        const DATABASE = [
+            // ЗАДАНИЕ 9: Корни
+            { word: "заг..релый", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Смуглый от воздействия солнечных лучей.", rule: "Чередующийся корень ГАР/ГОР: без ударения пишется О." },
+            { word: "к..сательная", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Прямая линия, имеющая с кривой одну общую точку.", rule: "Чередующийся корень КАС/КОС: пишется А, так как есть суффикс -А-." },
+            { word: "выр..щенный", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Вскормленный, развитый заботой и уходом (о растении или животном).", rule: "Чередующийся корень РАСТ/РАЩ/РОС: перед Щ пишется А." },
+            { word: "р..сток", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Молодой развивающийся побег растения.", rule: "Исключение из корня РАСТ/РАЩ/РОС: пишется О." },
+            { word: "зап..реть дверь", target: "е", options: ["е", "и"], taskNumber: 9, meaning: "Закрыть замок на ключ или засов.", rule: "Чередующийся корень ПЕР/ПИР: суффикса -А- нет, пишется Е." },
+            { word: "бл..стательный", target: "и", options: ["е", "и"], taskNumber: 9, meaning: "Великолепный, выдающийся по своим достоинствам.", rule: "Чередующийся корень БЛЕСТ/БЛИСТ: за корнем следует суффикс -А-." },
+            { word: "непром..каемый", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Не пропускающий через себя влагу или воду.", rule: "Чередующийся корень МАК/МОК: значение «не пропускать жидкость» (-МОК-), но здесь 'промокать' -> МОК, а погружать в жидкость -> МАК." },
+            { word: "обм..кнуть кисть", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Опустить в жидкость для смачивания или окраски.", rule: "Чередующийся корень МАК/МОК: погружение в жидкость — пишется А." },
+            { word: "пл..вец", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Спортсмен, занимающийся плаванием.", rule: "Исключение корня ПЛАВ/ПЛОВ: пишется О (пловец, пловчиха)." },
+            { word: "выск..чка", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Человек, стремящийся выдвинуться вперед незаслуженно.", rule: "Исключение из правила корней СКАК/СКОЧ перед Ч." },
+
+            // ЗАДАНИЕ 10: Приставки
+            { word: "пр..вокзальный", target: "и", options: ["е", "и"], taskNumber: 10, meaning: "Находящийся в непосредственной близости около вокзала.", rule: "Приставка ПРИ- в значении пространственной близости («около»)." },
+            { word: "пр..одолеть", target: "е", options: ["е", "и"], taskNumber: 10, meaning: "Справиться с трудностями или преградами.", rule: "Приставка ПРЕ- близка по значению к приставке ПЕРЕ-." },
+            { word: "пр..бывать в город", target: "и", options: ["е", "и"], taskNumber: 10, meaning: "Приезжать, добираться до места назначения.", rule: "Приставка ПРИ- в значении приближения." },
+            { word: "пр..бывать в неведении", target: "е", options: ["е", "и"], taskNumber: 10, meaning: "Находиться в определенном состоянии.", rule: "Омофон: ПРЕбывать = находиться где-то (пишется Е)." },
+            { word: "без..сходный", target: "ы", options: ["и", "ы"], taskNumber: 10, meaning: "Не имеющий выхода, безнадёжный.", rule: "После русской приставки на согласный (БЕЗ-) начальная И меняется на Ы." },
+            { word: "сверх..зысканный", target: "и", options: ["и", "ы"], taskNumber: 10, meaning: "Отличающийся чрезмерной утончённостью и изяществом.", rule: "После приставок СВЕРХ- и МЕЖ- начальная И сохраняется." },
+            { word: "под..тожить", target: "ы", options: ["и", "ы"], taskNumber: 10, meaning: "Подвести итог, сделать вывод.", rule: "После русской приставки на согласный (ПОД-) И переходит в Ы." },
+            { word: "под..езд", target: "ъ", options: ["ъ", "ь"], taskNumber: 10, meaning: "Вход в жилой дом, а также подъездная дорога.", rule: "Разделительный Ъ пишется после приставок на согласный перед Е, Ё, Ю, Я." },
+            { word: "без..ядерный", target: "ъ", options: ["ъ", "ь"], taskNumber: 10, meaning: "Не содержащий или не использующий атомное ядро/оружие.", rule: "Разделительный Ъ после приставки БЕЗ- перед буквой Я." },
+            { word: "в..юга", target: "ь", options: ["ъ", "ь"], taskNumber: 10, meaning: "Сильный ветер со снегом, метель.", rule: "Разделительный Ь пишется внутри корня перед Ю." },
+
+            // ЗАДАНИЕ 11: Суффиксы
+            { word: "завед..вать", target: "о", options: ["о", "ы"], taskNumber: 11, meaning: "Руководить, управлять каким-либо учреждением или процессом.", rule: "Форма 1 лица 'я заведую' (-ую/-юю) -> пишется суффикс -ОВА-." },
+            { word: "рассматр..вать", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Внимательно глядеть, изучать детали.", rule: "Форма 1 лица 'я рассматриваю' (-иваю) -> пишется суффикс -ИВА-." },
+            { word: "ливн..вый", target: "е", options: ["е", "и"], taskNumber: 11, meaning: "Относящийся к сильному проливному дождю.", rule: "Безударный суффикс прилагательных -ЕВ- (под ударением -ИВ-: краси́вый)." },
+            { word: "фасол..вый", target: "е", options: ["е", "и"], taskNumber: 11, meaning: "Приготовленный из бобов фасоли.", rule: "Безударный суффикс прилагательных -ЕВ-." },
+            { word: "усидч..вый", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Способный долго заниматься одним делом без усталости.", rule: "Неизменяемый суффикс качественных прилагательных -ЧИВ-." },
+            { word: "заботл..вый", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Внимательный к нуждам и удобству окружающих.", rule: "Неизменяемый суффикс прилагательных -ЛИВ-." },
+            { word: "горош..к", target: "е", options: ["е", "и"], taskNumber: 11, meaning: "Маленькая горошина или мелкий рисунок кружочками.", rule: "При склонении гласная выпадает: горошка -> суффикс -ЕК-." },
+            { word: "ключ..к", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Небольшой инструмент для отпирания замка.", rule: "При склонении гласная сохраняется: ключика -> суффикс -ИК-." },
+
+            // ЗАДАНИЕ 12: Окончания и причастия
+            { word: "приемл..мый ответ", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Удовлетворительный, допустимый, с которым можно согласиться.", rule: "От глагола 'принимать/приять' (I спряжение): страдательный суффикс -ЕМ-." },
+            { word: "колебл..мый ветром", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Мерно раскачивающийся от порывов ветра.", rule: "От глагола 'колебать' (I спряжение): суффикс -ЕМ-." },
+            { word: "стел..щийся плющ", target: "ю", options: ["я", "ю"], taskNumber: 12, meaning: "Стелющийся побегами низко по земле или стене.", rule: "Исключение 'стелить' (I спряжение): действительный суффикс -ЮЩ-." },
+            { word: "дыш..щий воздухом", target: "а", options: ["а", "у"], taskNumber: 12, meaning: "Втягивающий и выпускающий кислород живой организм.", rule: "Исключение 'дышать' (II спряжение): суффикс причастия -АЩ-." },
+            { word: "он услыш..т", target: "и", options: ["е", "и"], taskNumber: 12, meaning: "Воспримет звук слухом в будущем времени.", rule: "Исключение 'услышать' (II спряжение): окончание -ИТ." },
+            { word: "он стел..т", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Раскладывает по поверхности ткань или постель.", rule: "Исключение 'стелить' (I спряжение): окончание -ЕТ." },
+            { word: "разве..нный миф", target: "я", options: ["е", "я"], taskNumber: 12, meaning: "Опровергнутое ложное суждение или вымысел.", rule: "Перед -НН- сохраняется гласная инфинитива 'развеять' -> Я." },
+            { word: "скле..нный лист", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Соединённый клеем предмет из бумаги.", rule: "От глагола на -ИТЬ ('склеить') перед -НН- пишется суффикс -ЕНН-." }
+        ];
+
+        const STORAGE_KEY = 'ege_rus_trainer_v2';
+        const ACCOUNTS_STORAGE_KEY = 'ege_rus_accounts_v1';
+        const CURRENT_USER_KEY = 'ege_rus_current_user_v1';
+        const ADMIN_PASSWORD = "admin123";
+
+        let currentMode = 'mix';
+        let currentCard = null;
+        let isLocked = false;
+        let sessionCount = 1;
+        let authCurrentTab = 'login';
+        let currentUser = null;
+        let cachedAdminStudents = [];
+        window.isAdminOpen = false;
+
+        let state = {
+            streak: 0,
+            maxStreak: 0,
+            totalAnswers: 0,
+            correctAnswers: 0,
+            mistakes: []
+        };
+        window.state = state;
+
+        function getAccounts() {
+            try {
+                const accs = localStorage.getItem(ACCOUNTS_STORAGE_KEY);
+                return accs ? JSON.parse(accs) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveAccounts(accounts) {
+            try {
+                localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(accounts));
+            } catch (e) {}
+        }
+
+        function getUserStateKey(userEmail) {
+            return userEmail ? `ege_state_${userEmail.toLowerCase().trim()}` : STORAGE_KEY;
+        }
+
+        function loadState() {
+            try {
+                const savedUser = localStorage.getItem(CURRENT_USER_KEY);
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                }
+                const stateKey = getUserStateKey(currentUser?.email);
+                const savedState = localStorage.getItem(stateKey);
+                if (savedState) {
+                    window.state = { ...{ streak: 0, maxStreak: 0, totalAnswers: 0, correctAnswers: 0, mistakes: [] }, ...JSON.parse(savedState) };
+                } else {
+                    window.state = { streak: 0, maxStreak: 0, totalAnswers: 0, correctAnswers: 0, mistakes: [] };
+                }
+                state = window.state;
+            } catch (e) {
+                console.error('Ошибка загрузки данных', e);
+            }
+            updateUserUI();
+            updateStatsUI();
+            updateMistakesBadge();
+        }
+
+        function saveState() {
+            try {
+                const stateKey = getUserStateKey(currentUser?.email);
+                localStorage.setItem(stateKey, JSON.stringify(window.state));
+            } catch (e) {
+                console.error('Ошибка сохранения данных', e);
+            }
+            if (typeof window.saveCloudState === 'function') {
+                window.saveCloudState();
+            }
+        }
+
+        function updateUserUI() {
+            const btnName = document.getElementById('user-display-name');
+            const avatar = document.getElementById('user-avatar-circle');
+            const dropName = document.getElementById('dropdown-user-name');
+            const dropId = document.getElementById('dropdown-user-id');
+
+            const cloudId = typeof window.getCurrentUserId === 'function' ? window.getCurrentUserId() : null;
+            if (dropId && cloudId) {
+                dropId.textContent = `ID: ${cloudId}`;
+            }
+
+            if (currentUser) {
+                btnName.textContent = currentUser.name;
+                avatar.innerHTML = currentUser.name.charAt(0).toUpperCase();
+                avatar.className = 'w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold uppercase';
+                if (dropName) dropName.textContent = currentUser.name;
+            } else {
+                btnName.textContent = 'Войти';
+                avatar.innerHTML = '<i class="fa-solid fa-user"></i>';
+                avatar.className = 'w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold uppercase';
+            }
+        }
+
+        function updateStatsUI() {
+            document.getElementById('streak-counter').textContent = window.state.streak;
+            document.getElementById('stat-total').textContent = window.state.totalAnswers;
+            document.getElementById('stat-correct').textContent = window.state.correctAnswers;
+            document.getElementById('stat-max-streak').textContent = `${window.state.maxStreak} 🔥`;
+
+            const accuracy = window.state.totalAnswers > 0 
+                ? Math.round((window.state.correctAnswers / window.state.totalAnswers) * 100) 
+                : 100;
+            document.getElementById('accuracy-counter').textContent = `${accuracy}%`;
+        }
+
+        function updateMistakesBadge() {
+            const badge = document.getElementById('mistakes-badge');
+            const count = window.state.mistakes.length;
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            sessionCount = 1;
+
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.className = 'mode-tab flex-1 min-w-[75px] py-2 px-3 rounded-xl transition text-center whitespace-nowrap text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+            });
+            const activeTab = document.getElementById(`tab-${mode}`);
+            if (activeTab) {
+                activeTab.className = 'mode-tab flex-1 min-w-[75px] py-2 px-3 rounded-xl transition text-center whitespace-nowrap bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400 font-bold';
+            }
+
+            nextCard();
+        }
+
+        function getPool() {
+            if (currentMode === 'mistakes') {
+                return window.state.mistakes.length > 0 ? window.state.mistakes : DATABASE;
+            }
+            if (currentMode === 'mix') {
+                return DATABASE;
+            }
+            return DATABASE.filter(item => item.taskNumber === Number(currentMode));
+        }
+
+        function nextCard() {
+            isLocked = false;
+            const pool = getPool();
+
+            if (!pool || pool.length === 0) {
+                setMode('mix');
+                return;
+            }
+
+            let chosen;
+            if (pool.length === 1) {
+                chosen = pool[0];
+            } else {
+                do {
+                    chosen = pool[Math.floor(Math.random() * pool.length)];
+                } while (currentCard && chosen.word === currentCard.word && pool.length > 1);
+            }
+
+            currentCard = chosen;
+            renderCard();
+        }
+
+        function renderCard() {
+            const cardEl = document.getElementById('word-card');
+            const wordDisplay = document.getElementById('word-display');
+            const optionsContainer = document.getElementById('options-container');
+            const ruleBox = document.getElementById('rule-box');
+            const taskBadge = document.getElementById('card-task-badge');
+            const sessionCounter = document.getElementById('session-counter');
+            const keyboardHint = document.getElementById('keyboard-hint');
+            const aiBadge = document.getElementById('ai-generated-badge');
+
+            cardEl.className = 'w-full max-w-3xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-10 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all duration-300 text-center flex flex-col items-center justify-center relative min-h-[230px] animate-pop';
+            ruleBox.classList.add('hidden');
+            keyboardHint.classList.remove('hidden');
+
+            if (currentCard.isAI) {
+                aiBadge.classList.remove('hidden');
+            } else {
+                aiBadge.classList.add('hidden');
+            }
+
+            if (currentMode === 'mistakes') {
+                taskBadge.textContent = `Работа над ошибками (Задание ${currentCard.taskNumber})`;
+                taskBadge.className = 'px-2.5 py-1 rounded-lg bg-rose-50 dark:bg-rose-950/70 border border-rose-200/50 dark:border-rose-900/50 text-rose-700 dark:text-rose-300 font-semibold';
+            } else {
+                taskBadge.textContent = `Задание ${currentCard.taskNumber}`;
+                taskBadge.className = 'px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 border border-indigo-200/50 dark:border-indigo-900/50 text-indigo-700 dark:text-indigo-300 font-semibold';
+            }
+
+            sessionCounter.textContent = `Слово #${sessionCount++}`;
+
+            const formatted = currentCard.word.replace('..', `<span id="gap-highlight" class="inline-flex items-center justify-center min-w-[1.2ch] px-1 border-b-4 border-indigo-500 text-indigo-500 font-black animate-pulse mx-0.5">..</span>`);
+            wordDisplay.innerHTML = formatted;
+
+            optionsContainer.innerHTML = '';
+            currentCard.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.setAttribute('data-letter', opt.toLowerCase());
+                btn.className = 'opt-btn py-4 px-3 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 active:scale-95 transition-all text-xl sm:text-2xl font-bold shadow-sm flex items-center justify-center select-none tap-highlight-transparent cursor-pointer';
+                btn.innerHTML = `<span>${opt.toUpperCase()}</span>`;
+                btn.onclick = () => handleAnswer(opt);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedLetter) {
+            if (isLocked) return;
+            isLocked = true;
+
+            const isCorrect = selectedLetter.toLowerCase() === currentCard.target.toLowerCase();
+            const cardEl = document.getElementById('word-card');
+            const gap = document.getElementById('gap-highlight');
+            const keyboardHint = document.getElementById('keyboard-hint');
+
+            window.state.totalAnswers++;
+
+            if (isCorrect) {
+                window.state.correctAnswers++;
+                window.state.streak++;
+                if (window.state.streak > window.state.maxStreak) {
+                    window.state.maxStreak = window.state.streak;
+                }
+
+                if (currentMode === 'mistakes') {
+                    window.state.mistakes = window.state.mistakes.filter(m => m.word !== currentCard.word);
+                    updateMistakesBadge();
+                }
+
+                cardEl.classList.remove('border-slate-200/80', 'dark:border-slate-800');
+                cardEl.classList.add('border-emerald-500', 'bg-emerald-50/30', 'dark:bg-emerald-950/20');
+                
+                if (gap) {
+                    gap.className = 'inline-block px-1 border-b-4 border-emerald-500 text-emerald-600 dark:text-emerald-400 font-extrabold';
+                    gap.textContent = currentCard.target.toUpperCase();
+                }
+
+                highlightButtons(selectedLetter, true);
+                saveState();
+                updateStatsUI();
+
+                setTimeout(() => {
+                    nextCard();
+                }, 800);
+
+            } else {
+                window.state.streak = 0;
+
+                if (!window.state.mistakes.some(m => m.word === currentCard.word)) {
+                    window.state.mistakes.push(currentCard);
+                    updateMistakesBadge();
+                }
+
+                cardEl.classList.remove('border-slate-200/80', 'dark:border-slate-800');
+                cardEl.classList.add('border-rose-500', 'bg-rose-50/40', 'dark:bg-rose-950/20', 'animate-shake');
+
+                if (gap) {
+                    gap.className = 'inline-block px-1 border-b-4 border-rose-500 text-rose-600 dark:text-rose-400 font-extrabold';
+                    gap.textContent = currentCard.target.toUpperCase();
+                }
+
+                highlightButtons(selectedLetter, false, currentCard.target);
+
+                keyboardHint.classList.add('hidden');
+                const ruleBox = document.getElementById('rule-box');
+                const ruleText = document.getElementById('rule-text');
+                const meaningText = document.getElementById('meaning-text');
+
+                ruleText.textContent = currentCard.rule;
+                meaningText.textContent = currentCard.meaning || "Лексическое значение слова уточняется по контексту.";
+                ruleBox.classList.remove('hidden');
+
+                saveState();
+                updateStatsUI();
+            }
+        }
+
+        function highlightButtons(chosen, isSuccess, correctLetter = null) {
+            document.querySelectorAll('.opt-btn').forEach(btn => {
+                const btnLetter = btn.getAttribute('data-letter');
+                if (btnLetter === chosen.toLowerCase()) {
+                    if (isSuccess) {
+                        btn.classList.add('bg-emerald-500', 'text-white', 'border-emerald-500');
+                    } else {
+                        btn.classList.add('bg-rose-500', 'text-white', 'border-rose-500');
+                    }
+                }
+                if (!isSuccess && correctLetter && btnLetter === correctLetter.toLowerCase()) {
+                    btn.classList.add('border-emerald-500', 'text-emerald-600', 'dark:text-emerald-400');
+                }
+            });
+        }
+
+        function toggleAdminAuthModal(show) {
+            const modal = document.getElementById('admin-auth-modal');
+            const errorDiv = document.getElementById('admin-auth-error');
+            const passInput = document.getElementById('admin-pass-input');
+            if (errorDiv) errorDiv.classList.add('hidden');
+            if (passInput) passInput.value = '';
+
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => passInput?.focus(), 100);
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('admin-pass-input').value.trim();
+            const errorDiv = document.getElementById('admin-auth-error');
+
+            if (pass === ADMIN_PASSWORD) {
+                toggleAdminAuthModal(false);
+                toggleAdminDashboard(true);
+            } else {
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function toggleAdminDashboard(show) {
+            const modal = document.getElementById('admin-dashboard-modal');
+            window.isAdminOpen = show;
+            if (show) {
+                renderAdminDashboard();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function renderAdminDashboard() {
+            const localAccounts = getAccounts();
+            const cloudLeaders = typeof window.getCloudLeaders === 'function' ? window.getCloudLeaders() : [];
+            const mergedMap = new Map();
+
+            localAccounts.forEach(acc => {
+                const sKey = getUserStateKey(acc.email);
+                let accState = { totalAnswers: 0, correctAnswers: 0, maxStreak: 0, mistakes: [] };
+                try {
+                    const saved = localStorage.getItem(sKey);
+                    if (saved) accState = JSON.parse(saved);
+                } catch(e) {}
+                mergedMap.set(acc.email, {
+                    id: acc.email,
+                    name: acc.name,
+                    correctAnswers: accState.correctAnswers || 0,
+                    totalAnswers: accState.totalAnswers || 0,
+                    maxStreak: accState.maxStreak || 0,
+                    mistakesCount: Array.isArray(accState.mistakes) ? accState.mistakes.length : 0,
+                    source: 'Аккаунт'
+                });
+            });
+
+            cloudLeaders.forEach(item => {
+                const key = item.userId || item.userName;
+                const existing = mergedMap.get(key);
+                if (existing) {
+                    existing.correctAnswers = Math.max(existing.correctAnswers, item.correctAnswers || 0);
+                    existing.totalAnswers = Math.max(existing.totalAnswers, item.totalAnswers || 0);
+                    existing.maxStreak = Math.max(existing.maxStreak, item.maxStreak || 0);
+                } else {
+                    mergedMap.set(key, {
+                        id: item.userId || 'ID-не указан',
+                        name: item.userName || 'Ученик',
+                        correctAnswers: item.correctAnswers || 0,
+                        totalAnswers: item.totalAnswers || 0,
+                        maxStreak: item.maxStreak || 0,
+                        mistakesCount: 0,
+                        source: 'Облако'
+                    });
+                }
+            });
+
+            const curUid = typeof window.getCurrentUserId === 'function' ? window.getCurrentUserId() : 'Текущий';
+            if (!mergedMap.has(curUid) && window.state.totalAnswers > 0) {
+                mergedMap.set(curUid, {
+                    id: curUid,
+                    name: currentUser?.name || 'Вы (Текущий)',
+                    correctAnswers: window.state.correctAnswers,
+                    totalAnswers: window.state.totalAnswers,
+                    maxStreak: window.state.maxStreak,
+                    mistakesCount: window.state.mistakes.length,
+                    source: 'Сессия'
+                });
+            }
+
+            cachedAdminStudents = Array.from(mergedMap.values());
+            cachedAdminStudents.sort((a, b) => b.correctAnswers - a.correctAnswers);
+
+            let sumTotalAnswers = 0;
+            let sumCorrectAnswers = 0;
+            let overallMaxStreak = 0;
+
+            cachedAdminStudents.forEach(st => {
+                sumTotalAnswers += st.totalAnswers;
+                sumCorrectAnswers += st.correctAnswers;
+                if (st.maxStreak > overallMaxStreak) overallMaxStreak = st.maxStreak;
+            });
+
+            const overallAcc = sumTotalAnswers > 0 ? Math.round((sumCorrectAnswers / sumTotalAnswers) * 100) : 100;
+
+            document.getElementById('admin-kpi-students').textContent = cachedAdminStudents.length;
+            document.getElementById('admin-kpi-total-answers').textContent = sumTotalAnswers;
+            document.getElementById('admin-kpi-max-streak').textContent = `${overallMaxStreak} 🔥`;
+            document.getElementById('admin-kpi-accuracy').textContent = `${overallAcc}%`;
+
+            renderAdminStudentsTable(cachedAdminStudents);
+            renderTroubleWords();
+        }
+
+        function renderAdminStudentsTable(list) {
+            const tbody = document.getElementById('admin-students-tbody');
+            if (!tbody) return;
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Нет данных об учениках</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = list.map(st => {
+                const acc = st.totalAnswers > 0 ? Math.round((st.correctAnswers / st.totalAnswers) * 100) : 0;
+                return `
+                    <tr class="hover:bg-slate-100/60 dark:hover:bg-slate-800/60 transition">
+                        <td class="p-2.5">
+                            <div class="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                <span>${st.name}</span>
+                                <span class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50">${st.source}</span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 font-mono truncate max-w-[150px] sm:max-w-xs">${st.id}</div>
+                        </td>
+                        <td class="p-2.5 font-bold text-emerald-600 dark:text-emerald-400">${st.correctAnswers}</td>
+                        <td class="p-2.5 text-slate-600 dark:text-slate-300">${st.totalAnswers}</td>
+                        <td class="p-2.5 font-semibold text-amber-600 dark:text-amber-400"><i class="fa-solid fa-fire text-[10px]"></i> ${st.maxStreak}</td>
+                        <td class="p-2.5 font-bold ${acc >= 75 ? 'text-emerald-600' : 'text-amber-600'}">${acc}%</td>
+                        <td class="p-2.5 font-semibold text-rose-500">${st.mistakesCount}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterAdminStudents() {
+            const query = (document.getElementById('admin-search-input')?.value || '').toLowerCase().trim();
+            if (!query) {
+                renderAdminStudentsTable(cachedAdminStudents);
+                return;
+            }
+            const filtered = cachedAdminStudents.filter(s => 
+                s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query)
+            );
+            renderAdminStudentsTable(filtered);
+        }
+
+        function renderTroubleWords() {
+            const container = document.getElementById('admin-trouble-words');
+            if (!container) return;
+
+            const defaultTroubles = [
+                { word: "пр..емлемый ответ", target: "е", task: 12, rule: "От 'принять' (I спр.): суффикс -ЕМ-" },
+                { word: "под..тожить", target: "ы", task: 10, rule: "Русская приставка на согласный: И -> Ы" },
+                { word: "стел..щийся плющ", target: "ю", task: 12, rule: "Исключение 'стелить' (I спр.): -ЮЩ-" },
+                { word: "выск..чка", target: "о", task: 9, rule: "Исключение корня СКАК/СКОЧ перед Ч" }
+            ];
+
+            container.innerHTML = defaultTroubles.map(item => `
+                <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-start gap-2.5">
+                    <span class="w-6 h-6 rounded-lg bg-rose-50 dark:bg-rose-950 text-rose-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                        ${item.task}
+                    </span>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-xs text-slate-900 dark:text-white truncate">
+                            ${item.word.replace('..', `[ ${item.target.toUpperCase()} ]`)}
+                        </div>
+                        <p class="text-[11px] text-slate-400 truncate mt-0.5">${item.rule}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function exportStudentsToCSV() {
+            if (!cachedAdminStudents || cachedAdminStudents.length === 0) return;
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "Имя;ID/Email;Верно;Всего;Стрик;Точность;Ошибок;Источник\r\n";
+
+            cachedAdminStudents.forEach(st => {
+                const acc = st.totalAnswers > 0 ? Math.round((st.correctAnswers / st.totalAnswers) * 100) : 0;
+                csvContent += `"${st.name}";"${st.id}";${st.correctAnswers};${st.totalAnswers};${st.maxStreak};${acc}%;${st.mistakesCount};"${st.source}"\r\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `ege_students_report_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function toggleMistakesModal(show) {
+            const modal = document.getElementById('mistakes-modal');
+            if (show) {
+                renderMistakesList();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function renderMistakesList() {
+            const listEl = document.getElementById('mistakes-list');
+            const countEl = document.getElementById('modal-mistakes-count');
+            const practiceBtn = document.getElementById('practice-mistakes-btn');
+            
+            countEl.textContent = window.state.mistakes.length;
+            practiceBtn.disabled = window.state.mistakes.length === 0;
+
+            if (window.state.mistakes.length === 0) {
+                listEl.innerHTML = `
+                    <div class="py-12 text-center text-slate-400">
+                        <i class="fa-regular fa-circle-check text-4xl mb-3 text-emerald-500"></i>
+                        <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Список ошибок пуст!</p>
+                        <p class="text-xs text-slate-400 mt-1">Отличная работа, все слова решены верно.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = window.state.mistakes.map((m, index) => `
+                <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800 flex items-start justify-between gap-3">
+                    <div>
+                        <div class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <span>${m.word.replace('..', `[ ${m.target.toUpperCase()} ]`)}</span>
+                            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+                                Задание ${m.taskNumber}
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-snug">${m.rule}</p>
+                    </div>
+                    <button onclick="removeMistake(${index})" title="Удалить из списка" class="text-slate-400 hover:text-rose-500 p-1 transition cursor-pointer">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeMistake(index) {
+            window.state.mistakes.splice(index, 1);
+            saveState();
+            updateMistakesBadge();
+            renderMistakesList();
+        }
+
+        function clearMistakes() {
+            window.state.mistakes = [];
+            saveState();
+            updateMistakesBadge();
+            renderMistakesList();
+        }
+
+        function startMistakesMode() {
+            toggleMistakesModal(false);
+            setMode('mistakes');
+        }
+
+        function resetStats() {
+            window.state.streak = 0;
+            window.state.maxStreak = 0;
+            window.state.totalAnswers = 0;
+            window.state.correctAnswers = 0;
+            saveState();
+            updateStatsUI();
+        }
+
+        function handleProfileClick() {
+            const dropdown = document.getElementById('profile-dropdown');
+            if (currentUser) {
+                dropdown.classList.toggle('hidden');
+            } else {
+                toggleAuthModal(true);
+            }
+        }
+
+        function toggleAuthModal(show) {
+            const modal = document.getElementById('auth-modal');
+            const errorDiv = document.getElementById('auth-error');
+            if (errorDiv) errorDiv.classList.add('hidden');
+            
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function switchAuthTab(tab) {
+            authCurrentTab = tab;
+            const nameGroup = document.getElementById('auth-name-group');
+            const title = document.getElementById('auth-title');
+            const subtitle = document.getElementById('auth-subtitle');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const tabLogin = document.getElementById('auth-tab-login');
+            const tabSignup = document.getElementById('auth-tab-signup');
+            const errorDiv = document.getElementById('auth-error');
+            errorDiv.classList.add('hidden');
+
+            if (tab === 'signup') {
+                nameGroup.classList.remove('hidden');
+                document.getElementById('auth-name-input').required = true;
+                title.textContent = 'Создание аккаунта';
+                subtitle.textContent = 'Зарегистрируйтесь для сохранения результатов';
+                submitBtn.textContent = 'Зарегистрироваться';
+                
+                tabSignup.className = 'flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400 transition cursor-pointer';
+                tabLogin.className = 'flex-1 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition cursor-pointer';
+            } else {
+                nameGroup.classList.add('hidden');
+                document.getElementById('auth-name-input').required = false;
+                title.textContent = 'Вход в профиль';
+                subtitle.textContent = 'Сохраняйте личный прогресс и ошибки';
+                submitBtn.textContent = 'Войти';
+
+                tabLogin.className = 'flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400 transition cursor-pointer';
+                tabSignup.className = 'flex-1 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition cursor-pointer';
+            }
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('auth-email-input').value.trim().toLowerCase();
+            const passwordInput = document.getElementById('auth-password-input').value;
+            const nameInput = document.getElementById('auth-name-input').value.trim();
+            const errorDiv = document.getElementById('auth-error');
+
+            const accounts = getAccounts();
+
+            if (authCurrentTab === 'signup') {
+                if (accounts.some(acc => acc.email === emailInput)) {
+                    errorDiv.textContent = 'Пользователь с таким email уже существует.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                const newUser = {
+                    name: nameInput || emailInput.split('@')[0],
+                    email: emailInput,
+                    password: passwordInput
+                };
+
+                accounts.push(newUser);
+                saveAccounts(accounts);
+
+                currentUser = { name: newUser.name, email: newUser.email };
+                localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+                saveState();
+            } else {
+                const existing = accounts.find(acc => acc.email === emailInput && acc.password === passwordInput);
+                if (!existing) {
+                    errorDiv.textContent = 'Неверный email или пароль.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                currentUser = { name: existing.name, email: existing.email };
+                localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+            }
+
+            toggleAuthModal(false);
+            loadState();
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem(CURRENT_USER_KEY);
+            document.getElementById('profile-dropdown').classList.add('hidden');
+            loadState();
+        }
+
+        function toggleLeaderboardModal(show) {
+            const modal = document.getElementById('leaderboard-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function toggleAIModal(show) {
+            const modal = document.getElementById('ai-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            localStorage.setItem('ege_theme_mode', isDark ? 'dark' : 'light');
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('ege_theme_mode');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        async function askAITutor() {
+            if (!currentCard) return;
+            toggleAIModal(true);
+            const wordEl = document.getElementById('ai-modal-word');
+            const bodyEl = document.getElementById('ai-modal-body');
+
+            wordEl.textContent = `Разбор: ${currentCard.word.replace('..', currentCard.target.toUpperCase())}`;
+            bodyEl.innerHTML = `
+                <div class="space-y-3">
+                    <div class="p-3.5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/50 border border-indigo-200/60 dark:border-indigo-900/50">
+                        <div class="text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider mb-1">Лексическое значение</div>
+                        <p class="text-slate-800 dark:text-slate-200">${currentCard.meaning || "Уточняется по толковому словарю."}</p>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200/70 dark:border-amber-900/50">
+                        <div class="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-1">Орфографическое правило ЕГЭ</div>
+                        <p class="text-slate-800 dark:text-slate-200 font-medium">${currentCard.rule}</p>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-900/40">
+                        <div class="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider mb-1">Как легко запомнить на экзамене</div>
+                        <p class="text-slate-700 dark:text-slate-300 text-xs leading-relaxed">
+                            Обратите внимание на морфемный состав и значение приставки/суффикса. В слове <strong class="text-emerald-600">${currentCard.word.replace('..', currentCard.target.toUpperCase())}</strong> ошибка часто допускается из-за путаницы с омонимичными формами.
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function generateAIQuestion() {
+            const nextMode = currentMode === 'mix' || currentMode === 'mistakes' ? [9, 10, 11, 12][Math.floor(Math.random() * 4)] : Number(currentMode);
+            const pool = DATABASE.filter(item => item.taskNumber === nextMode);
+            const randomItem = pool[Math.floor(Math.random() * pool.length)];
+            currentCard = { ...randomItem, isAI: true };
+            isLocked = false;
+            renderCard();
+        }
+
+        window.toggleAdminAuthModal = toggleAdminAuthModal;
+        window.handleAdminLogin = handleAdminLogin;
+        window.toggleAdminDashboard = toggleAdminDashboard;
+        window.filterAdminStudents = filterAdminStudents;
+        window.exportStudentsToCSV = exportStudentsToCSV;
+        window.toggleLeaderboardModal = toggleLeaderboardModal;
+        window.handleProfileClick = handleProfileClick;
+        window.toggleAuthModal = toggleAuthModal;
+        window.switchAuthTab = switchAuthTab;
+        window.handleAuthSubmit = handleAuthSubmit;
+        window.logoutUser = logoutUser;
+        window.setMode = setMode;
+        window.nextCard = nextCard;
+        window.handleAnswer = handleAnswer;
+        window.toggleMistakesModal = toggleMistakesModal;
+        window.removeMistake = removeMistake;
+        window.clearMistakes = clearMistakes;
+        window.startMistakesMode = startMistakesMode;
+        window.resetStats = resetStats;
+        window.toggleDarkMode = toggleDarkMode;
+        window.askAITutor = askAITutor;
+        window.generateAIQuestion = generateAIQuestion;
+        window.toggleAIModal = toggleAIModal;
+        window.updateStatsUI = updateStatsUI;
+        window.updateMistakesBadge = updateMistakesBadge;
+        window.updateUserUI = updateUserUI;
+        window.DATABASE = DATABASE;
+
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a' || e.key === 'Ф' || e.key === 'ф')) {
+                e.preventDefault();
+                toggleAdminAuthModal(true);
+                return;
+            }
+
+            if (e.key === 'Escape') {
+                toggleMistakesModal(false);
+                toggleAIModal(false);
+                toggleAdminAuthModal(false);
+                toggleAdminDashboard(false);
+                toggleAuthModal(false);
+                toggleLeaderboardModal(false);
+                return;
+            }
+
+            if (isLocked) {
+                const ruleBox = document.getElementById('rule-box');
+                if (!ruleBox.classList.contains('hidden')) {
+                    if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        nextCard();
+                    }
+                }
+                return;
+            }
+
+            if (!currentCard) return;
+
+            const pressedKey = e.key.toLowerCase();
+            const matchedOption = currentCard.options.find(opt => opt.toLowerCase() === pressedKey);
+            if (matchedOption) {
+                handleAnswer(matchedOption);
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            const container = document.getElementById('auth-header-container');
+            const dropdown = document.getElementById('profile-dropdown');
+            if (container && dropdown && !container.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            loadState();
+            setMode('mix');
+            if (typeof window.initCloudStorage === 'function') {
+                window.initCloudStorage();
+            }
+        });
+    </script>
+
+    <!-- Опциональный модуль Firebase для облачной синхронизации -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ege-trainer-app';
+        let firebaseConfig = null;
+        try {
+            firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        } catch (e) {}
+
+        let db = null;
+        let auth = null;
+        let currentUserId = null;
+        let isCloudAvailable = false;
+
+        async function initCloudStorage() {
+            if (!firebaseConfig) return;
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                currentUserId = auth.currentUser?.uid || 'guest-' + crypto.randomUUID();
+                isCloudAvailable = true;
+
+                await loadCloudUserState();
+                listenToLeaderboard();
+            } catch (err) {
+                console.warn("Облако работает в автономном режиме:", err);
+            }
+        }
+
+        async function loadCloudUserState() {
+            if (!isCloudAvailable || !auth?.currentUser) return;
+            try {
+                const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'profile', 'state');
+                const snap = await getDoc(userDocRef);
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.state) {
+                        window.state = {
+                            streak: data.state.streak || 0,
+                            maxStreak: data.state.maxStreak || 0,
+                            totalAnswers: data.state.totalAnswers || 0,
+                            correctAnswers: data.state.correctAnswers || 0,
+                            mistakes: data.state.mistakes ? JSON.parse(data.state.mistakes) : []
+                        };
+                        window.updateStatsUI();
+                        window.updateMistakesBadge();
+                    }
+                }
+            } catch (err) {
+                console.warn("Ошибка загрузки данных облака:", err);
+            }
+        }
+
+        async function saveCloudState() {
+            if (!isCloudAvailable || !auth?.currentUser) return;
+            try {
+                const stateData = {
+                    streak: window.state.streak,
+                    maxStreak: window.state.maxStreak,
+                    totalAnswers: window.state.totalAnswers,
+                    correctAnswers: window.state.correctAnswers,
+                    mistakes: JSON.stringify(window.state.mistakes)
+                };
+
+                const userName = window.currentUser?.name || `Ученик-${currentUserId.slice(0, 5)}`;
+                const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'profile', 'state');
+                await setDoc(userDocRef, { state: stateData, userName, updatedAt: Date.now() }, { merge: true });
+
+                const publicLeaderRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUserId);
+                await setDoc(publicLeaderRef, {
+                    userId: currentUserId,
+                    userName,
+                    correctAnswers: window.state.correctAnswers,
+                    maxStreak: window.state.maxStreak,
+                    totalAnswers: window.state.totalAnswers,
+                    updatedAt: Date.now()
+                }, { merge: true });
+            } catch (err) {}
+        }
+
+        function listenToLeaderboard() {
+            if (!isCloudAvailable || !db) return;
+            try {
+                const leaderColRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+                onSnapshot(leaderColRef, (snapshot) => {
+                    const leaders = [];
+                    snapshot.forEach(docSnap => leaders.push(docSnap.data()));
+                    leaders.sort((a, b) => (b.correctAnswers || 0) - (a.correctAnswers || 0));
+                    window.cachedLeaders = leaders;
+                    if (window.isAdminOpen) window.renderAdminDashboard();
+                }, () => {});
+            } catch (e) {}
+        }
+
+        window.saveCloudState = saveCloudState;
+        window.initCloudStorage = initCloudStorage;
+        window.getCurrentUserId = () => currentUserId;
+        window.getCloudLeaders = () => (window.cachedLeaders || []);
+    </script>
+</body>
+</html>
