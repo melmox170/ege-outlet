@@ -75,7 +75,7 @@
                         ЕГЭ Тренажёр
                         <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-semibold">Орфография</span>
                         <span class="text-[10px] px-2 py-0.5 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold flex items-center gap-1 shadow-sm">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Gemini
+                            <i class="fa-solid fa-cloud"></i> Облако
                         </span>
                     </h1>
                     <p class="text-xs text-slate-500 dark:text-slate-400">Задания 9 — 12 • С поддержкой ИИ-репетитора</p>
@@ -93,6 +93,40 @@
                     <i class="fa-solid fa-bullseye text-indigo-500"></i>
                     <span id="accuracy-counter">100%</span>
                 </div>
+
+                <!-- Кнопка Профиля / Авторизации -->
+                <div id="auth-header-container" class="relative">
+                    <button onclick="handleProfileClick()" id="user-profile-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs transition cursor-pointer border border-slate-200 dark:border-slate-700">
+                        <div id="user-avatar-circle" class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold uppercase">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <span id="user-display-name" class="max-w-[90px] truncate">Войти</span>
+                    </button>
+
+                    <!-- Выпадающее меню профиля (когда авторизован) -->
+                    <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 py-1.5 z-40 text-xs animate-pop">
+                        <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                            <p class="font-bold text-slate-900 dark:text-white truncate" id="dropdown-user-name">Пользователь</p>
+                            <p class="text-[10px] text-slate-400 font-mono truncate" id="dropdown-user-id">ID: ...</p>
+                            <div class="mt-1 flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Сохраняется в облаке
+                            </div>
+                        </div>
+                        <button onclick="toggleLeaderboardModal(true)" class="w-full text-left px-3 py-2 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 font-medium flex items-center gap-2 cursor-pointer transition">
+                            <i class="fa-solid fa-trophy"></i>
+                            <span>Таблица лидеров</span>
+                        </button>
+                        <button onclick="logoutUser()" class="w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-medium flex items-center gap-2 cursor-pointer transition">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            <span>Выйти из аккаунта</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Кнопка рейтинга / таблицы лидеров -->
+                <button onclick="toggleLeaderboardModal(true)" title="Общий рейтинг пользователей" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-amber-500 transition cursor-pointer">
+                    <i class="fa-solid fa-trophy"></i>
+                </button>
 
                 <!-- Кнопка вызова генератора заданий ИИ -->
                 <button onclick="generateAIQuestion()" id="generate-ai-btn" title="Сгенерировать новое задание с помощью нейросети" class="relative px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold text-xs transition shadow-sm shadow-indigo-500/20 flex items-center gap-1.5 cursor-pointer">
@@ -233,10 +267,14 @@
                     <span>Рекорд серии: <strong id="stat-max-streak" class="text-amber-600 dark:text-amber-400">0 🔥</strong></span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button onclick="generateAIQuestion()" class="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
+                    <button onclick="generateAIQuestion()" class="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> Сгенерировать вопрос с ИИ
                     </button>
-                    <button onclick="resetStats()" class="hover:text-rose-500 transition underline underline-offset-2">
+                    <button onclick="toggleAdminAuthModal(true)" title="Вход в Панель учителя / администратора (или Ctrl+Shift+A)" class="hover:text-indigo-500 transition flex items-center gap-1.5 font-medium px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                        <i class="fa-solid fa-shield-halved text-indigo-500"></i>
+                        <span>Панель учителя</span>
+                    </button>
+                    <button onclick="resetStats()" class="hover:text-rose-500 transition underline underline-offset-2 cursor-pointer">
                         Сбросить статистику
                     </button>
                 </div>
@@ -281,6 +319,74 @@
         </div>
     </div>
 
+    <!-- Модальное окно: Регистрация и Авторизация -->
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-6 shadow-2xl overflow-hidden animate-pop relative">
+            <button onclick="toggleAuthModal(false)" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg cursor-pointer">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Заголовок модалки -->
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-200/60 dark:border-indigo-900/50 text-indigo-600 flex items-center justify-center text-xl shadow-inner">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <h3 id="auth-title" class="text-lg font-bold text-slate-900 dark:text-white">Вход в профиль</h3>
+                <p id="auth-subtitle" class="text-xs text-slate-400 mt-1">Сохраняйте личный прогресс и ошибки</p>
+            </div>
+
+            <!-- Вкладки: Вход / Регистрация -->
+            <div class="flex p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl mb-4 text-xs font-semibold">
+                <button onclick="switchAuthTab('login')" id="auth-tab-login" class="flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400 transition cursor-pointer">
+                    Вход
+                </button>
+                <button onclick="switchAuthTab('signup')" id="auth-tab-signup" class="flex-1 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition cursor-pointer">
+                    Регистрация
+                </button>
+            </div>
+
+            <!-- Форма авторизации -->
+            <form onsubmit="handleAuthSubmit(event)" class="space-y-3.5">
+                <!-- Поле: Имя (только для регистрации) -->
+                <div id="auth-name-group" class="hidden">
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Ваше имя или никнейм</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                        <input type="text" id="auth-name-input" placeholder="Например: Александр" class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-white">
+                    </div>
+                </div>
+
+                <!-- Поле: Email -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Email</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-envelope absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                        <input type="email" id="auth-email-input" required placeholder="name@example.com" class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-white">
+                    </div>
+                </div>
+
+                <!-- Поле: Пароль -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Пароль</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                        <input type="password" id="auth-password-input" required placeholder="••••••••" minlength="4" class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-white">
+                    </div>
+                </div>
+
+                <!-- Ошибка формы -->
+                <div id="auth-error" class="hidden text-[11px] font-medium text-rose-500 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200/50 dark:border-rose-900/50">
+                    <!-- Заполняется в JS -->
+                </div>
+
+                <!-- Кнопка подтверждения -->
+                <button type="submit" id="auth-submit-btn" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition shadow-md shadow-indigo-500/20 cursor-pointer mt-2">
+                    Войти
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Модальное окно «Работа над ошибками» -->
     <div id="mistakes-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs hidden items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
@@ -312,321 +418,240 @@
             </div>
         </div>
     </div>
-    <!-- JavaScript-логика тренажера и интеграция Gemini API -->
+
+    <!-- Модальное окно «Таблица лидеров в облаке» -->
+    <div id="leaderboard-modal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-lg w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-pop">
+            <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-amber-500/10 via-transparent to-indigo-500/10">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center text-base shadow-md shadow-amber-500/20">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base">Таблица лидеров</h3>
+                        <p class="text-xs text-slate-400">Общий рейтинг всех пользователей тренажёра</p>
+                    </div>
+                </div>
+                <button onclick="toggleLeaderboardModal(false)" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div id="leaderboard-list" class="flex-1 overflow-y-auto p-5 space-y-2.5">
+                <!-- Заполняется динамически -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Вход в Панель Администратора -->
+    <div id="admin-auth-modal" class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-sm w-full p-6 shadow-2xl overflow-hidden animate-pop relative">
+            <button onclick="toggleAdminAuthModal(false)" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg cursor-pointer">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <div class="text-center mb-5">
+                <div class="w-12 h-12 mx-auto mb-3 rounded-2xl bg-indigo-50 dark:bg-indigo-950/80 border border-indigo-200/60 dark:border-indigo-900/50 text-indigo-600 flex items-center justify-center text-xl shadow-inner">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Панель учителя</h3>
+                <p class="text-xs text-slate-400 mt-1">Доступ к данным учеников и аналитике</p>
+            </div>
+
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Пароль администратора</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-key absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                        <input type="password" id="admin-pass-input" placeholder="Введите пароль..." required autofocus class="w-full pl-9 pr-3 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-indigo-500 text-slate-900 dark:text-white">
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1.5">По умолчанию пароль: <code class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded font-mono text-indigo-500 font-bold">admin123</code></p>
+                </div>
+
+                <div id="admin-auth-error" class="hidden text-[11px] font-medium text-rose-500 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200/50">
+                    Неверный пароль администратора.
+                </div>
+
+                <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition shadow-md shadow-indigo-500/20 cursor-pointer">
+                    Открыть дашборд
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Большое модальное окно: Панель Администратора / Учителя -->
+    <div id="admin-dashboard-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-3 sm:p-5">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-pop">
+            
+            <!-- Шапка админки -->
+            <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-indigo-500/10 via-slate-500/5 to-purple-500/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-lg shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-extrabold text-base sm:text-lg flex items-center gap-2">
+                            Панель администратора / Учителя
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 font-bold">Онлайн</span>
+                        </h2>
+                        <p class="text-xs text-slate-400">Сводная статистика по всем ученикам и сложным словам</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportStudentsToCSV()" title="Скачать таблицу учеников в Excel / CSV" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800 font-semibold text-xs transition cursor-pointer">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>Экспорт CSV</span>
+                    </button>
+                    <button onclick="toggleAdminDashboard(false)" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg cursor-pointer">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Тело админки (скроллируемое) -->
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+                
+                <!-- KPI Карточки -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div class="p-3.5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200/50 dark:border-indigo-900/40">
+                        <div class="text-[11px] font-bold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider mb-1">Всего учеников</div>
+                        <div id="admin-kpi-students" class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">0</div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/50 dark:border-emerald-900/40">
+                        <div class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">Решено заданий</div>
+                        <div id="admin-kpi-total-answers" class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">0</div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-900/40">
+                        <div class="text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-1">Рекорд серии</div>
+                        <div id="admin-kpi-max-streak" class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">0 🔥</div>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-purple-50/60 dark:bg-purple-950/30 border border-purple-200/50 dark:border-purple-900/40">
+                        <div class="text-[11px] font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider mb-1">Средняя точность</div>
+                        <div id="admin-kpi-accuracy" class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">0%</div>
+                    </div>
+                </div>
+
+                <!-- Блок: Поиск и Таблица учеников -->
+                <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3.5">
+                        <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-users text-indigo-500"></i>
+                            <span>Список зарегистрированных учеников</span>
+                        </h3>
+                        <div class="relative max-w-xs w-full">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            <input type="text" id="admin-search-input" oninput="filterAdminStudents()" placeholder="Поиск по имени или ID..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-indigo-500 text-slate-900 dark:text-white">
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200/70 dark:border-slate-800">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-700">
+                                <tr>
+                                    <th class="p-2.5">Ученик / ID</th>
+                                    <th class="p-2.5">Верно</th>
+                                    <th class="p-2.5">Всего</th>
+                                    <th class="p-2.5">Стрик</th>
+                                    <th class="p-2.5">Точность</th>
+                                    <th class="p-2.5">Ошибок</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-students-tbody" class="divide-y divide-slate-200/60 dark:divide-slate-800">
+                                <!-- Заполняется через JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Блок: Топ ошибок по заданиям ЕГЭ -->
+                <div class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4">
+                    <h3 class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2 mb-3">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+                        <span>Слова с наибольшим числом ошибок (Ловушки ЕГЭ)</span>
+                    </h3>
+                    <div id="admin-trouble-words" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <!-- Заполняется через JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Подвал админки -->
+            <div class="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <button onclick="exportStudentsToCSV()" class="sm:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-semibold cursor-pointer">
+                    <i class="fa-solid fa-file-excel"></i> Экспорт CSV
+                </button>
+                <div class="text-slate-400 text-[11px]">
+                    Пароль можно изменить в коде скрипта (<code class="text-indigo-400">ADMIN_PASSWORD</code>)
+                </div>
+                <button onclick="toggleAdminDashboard(false)" class="py-2 px-4 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 font-bold transition cursor-pointer">
+                    Закрыть панель
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Основной классический скрипт: База данных, игровая логика, UI и глобальные обработчики -->
     <script>
-        // ========================================================
-        // 1. БАЗА ДАННЫХ СЛОВ ЕГЭ (120+ заданий 9-12)
-        // ========================================================
         const DATABASE = [
-            // ЗАДАНИЕ 9: Правописание корней
-            { word: "к..сательная", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Прямая линия, имеющая с кривой или окружностью ровно одну общую точку.", rule: "Чередование КАС/КОС: пишется А, так как за корнем следует суффикс -А-." },
-            { word: "прик..сновение", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Действие по значению глагола 'прикоснуться' (физический или переносный контакт).", rule: "Чередование КАС/КОС: пишется О, так как после корня нет суффикса -А-." },
-            { word: "заг..релый", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Смуглый, потемневший от солнечных лучей.", rule: "Чередование ГАР/ГОР: без ударения в корне пишется буква О." },
-            { word: "ог..рок", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Остаток недогоревшей свечи или спички.", rule: "Чередование ГАР/ГОР: под ударением пишется буква А." },
-            { word: "р..сток", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Молодой стебелёк растения, только что начавший развиваться из семени.", rule: "Чередование РАСТ/РАЩ/РОС: слово «росток» — традиционное исключение!" },
-            { word: "отр..сль", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Определённая сфера экономики, науки или производства (напр., отрасль промышленности).", rule: "Чередование РАСТ/РАЩ/РОС: «отрасль» — слово-исключение, пишется буква А." },
-            { word: "выр..щенный", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Вскормленный, развитый заботливым уходом (о растениях, животных, людях).", rule: "Чередование РАСТ/РАЩ/РОС: перед согласной Щ пишется буква А." },
-            { word: "ск..кать", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Двигаться быстрыми скачками, прыжками; мчаться верхом на лошади.", rule: "Чередование СКАК/СКОЧ: перед согласной К пишется буква А." },
-            { word: "выск..чка", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Человек, который выдвинулся слишком быстро или ведёт себя самоуверенно и навязчиво.", rule: "Чередование СКАК/СКОЧ: «выскочка» — исключение, перед Ч пишется О." },
-            { word: "бл..стеть", target: "е", options: ["е", "и"], taskNumber: 9, meaning: "Ярко сиять, отражая свет; выделяться выдающимися достоинствами.", rule: "Чередование БЛЕСТ/БЛИСТ: суффикса -А- после корня нет, поэтому пишется Е." },
-            { word: "бл..стательный", target: "и", options: ["е", "и"], taskNumber: 9, meaning: "Великолепный, выдающийся по своим достоинствам, производящий яркое впечатление.", rule: "Чередование БЛЕСТ/БЛИСТ: пишется И, так как за корнем идёт суффикс -А-." },
-            { word: "соб..рать", target: "и", options: ["е", "и"], taskNumber: 9, rule: "Чередование БЕР/БИР: пишется И благодаря суффиксу -А- после корня.", meaning: "Сосредоточивать в одном месте, накапливать или составлять целое из частей." },
-            { word: "зам..реть", target: "е", options: ["е", "и"], taskNumber: 9, meaning: "Стать совершенно неподвижным, затихнуть от удивления, страха или ожидания.", rule: "Чередование МЕР/МИР: пишется Е, так как после корня отсутствует суффикс -А-." },
-            { word: "ум..рающий", target: "и", options: ["е", "и"], taskNumber: 9, meaning: "Находящийся на пороге смерти либо постепенно угасающий (о чувствах, природе).", rule: "Чередование МЕР/МИР: пишется И из-за наличия суффикса -А- за корнем." },
-            { word: "выт..рать", target: "и", options: ["е", "и"], taskNumber: 9, meaning: "Удалять влагу, пыль или грязь, проводя тряпкой, полотенцем.", rule: "Чередование ТЕР/ТИР: пишется И, потому что за корнем следует суффикс -А-." },
-            { word: "выт..реть", target: "е", options: ["е", "и"], taskNumber: 9, meaning: "Очистить поверхность от влаги или грязи трением.", rule: "Чередование ТЕР/ТИР: суффикса -А- нет, пишем Е." },
-            { word: "расст..лать", target: "и", options: ["е", "и"], taskNumber: 9, meaning: "Раскладывать по поверхности в развёрнутом виде (скатерть, ковер).", rule: "Чередование СТЕЛ/СТИЛ: пишется И перед суффиксом -А-." },
-            { word: "расст..лить", target: "е", options: ["е", "и"], taskNumber: 9, meaning: "Развернуть и покрыть какую-либо поверхность ровным слоем.", rule: "Чередование СТЕЛ/СТИЛ: нет суффикса -А-, пишется буква Е." },
-            { word: "ур..внение", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Математическое равенство с одной или несколькими неизвестными величинами.", rule: "Чередование РАВН/РОВН: корень РАВН- связан со значением «одинаковый, равный»." },
-            { word: "подр..внять кусты", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Сделать поверхность кустов гладкой, аккуратной, прямой линии.", rule: "Чередование РАВН/РОВН: корень РОВН- в значении «гладкий, ровный»." },
-            { word: "м..кать хлеб", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Опускать хлеб в жидкость (соус, чай, мед) на короткое время.", rule: "Чередование МАК/МОК: корень МАК- обозначает «погружать в жидкость»." },
-            { word: "непром..каемый", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Не пропускающий через себя влагу или воду (о ткани, плаще).", rule: "Чередование МАК/МОК: корень МОК- обозначает «пропускать жидкость»." },
-            { word: "пл..вец", target: "о", options: ["а", "о", "ы"], taskNumber: 9, meaning: "Спортсмен или человек, умеющий хорошо плавать.", rule: "Чередование ПЛАВ/ПЛОВ: слова «пловец» и «пловчиха» пишутся с О — исключения!" },
-            { word: "прим..рение сторон", target: "и", options: ["е", "и"], taskNumber: 9, meaning: "Восстановление согласия, прекращение ссоры или конфликта.", rule: "Проверяемая безударная гласная в корне: проверочное слово — «мир»." },
-            { word: "прим..рять платье", target: "е", options: ["е", "и"], taskNumber: 9, meaning: "Надевать одежду для проверки размера, посадки и фасона.", rule: "Проверяемая безударная гласная в корне: проверочное слово — «мЕрка»." },
-            { word: "просв..щение", target: "е", options: ["е", "и"], taskNumber: 9, meaning: "Распространение знаний, образования и культуры среди людей.", rule: "Проверяемая безударная гласная: проверочное слово — «свЕт»." },
-            { word: "ун..кальный", target: "и", options: ["е", "и"], taskNumber: 9, meaning: "Единственный в своём роде, исключительный, не имеющий аналогов.", rule: "Непроверяемая словарная гласная в корне: пишется буква И." },
-            { word: "в..негрет", target: "и", options: ["е", "и"], taskNumber: 9, meaning: "Холодное блюдо из вареной свеклы, картофеля, моркови, соленых огурцов; в переносном смысле — смесь разного.", rule: "Словарное слово: пишется «винегрет» (от французского vinaigre)." },
-            { word: "пал..садник", target: "и", options: ["е", "и", "я"], taskNumber: 9, meaning: "Небольшой огороженный садик перед фасадом дома.", rule: "Словарное слово: пишется «палисадник» с буквой И." },
-            { word: "аб..немент", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Документ, предоставляющий право регулярного пользования услугой (спортзал, библиотека).", rule: "Словарное слово: пишется «абонемент» через О." },
+            // ЗАДАНИЕ 9: Корни
+            { word: "заг..релый", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Смуглый от воздействия солнечных лучей.", rule: "Чередующийся корень ГАР/ГОР: без ударения пишется О." },
+            { word: "к..сательная", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Прямая линия, имеющая с кривой одну общую точку.", rule: "Чередующийся корень КАС/КОС: пишется А, так как есть суффикс -А-." },
+            { word: "выр..щенный", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Вскормленный, развитый заботой и уходом (о растении или животном).", rule: "Чередующийся корень РАСТ/РАЩ/РОС: перед Щ пишется А." },
+            { word: "р..сток", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Молодой развивающийся побег растения.", rule: "Исключение из корня РАСТ/РАЩ/РОС: пишется О." },
+            { word: "зап..реть дверь", target: "е", options: ["е", "и"], taskNumber: 9, meaning: "Закрыть замок на ключ или засов.", rule: "Чередующийся корень ПЕР/ПИР: суффикса -А- нет, пишется Е." },
+            { word: "бл..стательный", target: "и", options: ["е", "и"], taskNumber: 9, meaning: "Великолепный, выдающийся по своим достоинствам.", rule: "Чередующийся корень БЛЕСТ/БЛИСТ: за корнем следует суффикс -А-." },
+            { word: "непром..каемый", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Не пропускающий через себя влагу или воду.", rule: "Чередующийся корень МАК/МОК: значение «не пропускать жидкость» (-МОК-), но здесь 'промокать' -> МОК, а погружать в жидкость -> МАК." },
+            { word: "обм..кнуть кисть", target: "а", options: ["а", "о"], taskNumber: 9, meaning: "Опустить в жидкость для смачивания или окраски.", rule: "Чередующийся корень МАК/МОК: погружение в жидкость — пишется А." },
+            { word: "пл..вец", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Спортсмен, занимающийся плаванием.", rule: "Исключение корня ПЛАВ/ПЛОВ: пишется О (пловец, пловчиха)." },
+            { word: "выск..чка", target: "о", options: ["а", "о"], taskNumber: 9, meaning: "Человек, стремящийся выдвинуться вперед незаслуженно.", rule: "Исключение из правила корней СКАК/СКОЧ перед Ч." },
 
-            // ЗАДАНИЕ 10: Правописание приставок
-            { word: "пр..красный", target: "е", options: ["е", "и"], taskNumber: 10, meaning: "Очень красивый, восхитительный по своим внешним или внутренним качествам.", rule: "Приставка ПРЕ- в значении высшей степени качества (= очень красивый)." },
-            { word: "пр..вокзальный", target: "и", options: ["е", "и"], taskNumber: 10, meaning: "Находящийся в непосредственной близости к железнодорожному вокзалу.", rule: "Приставка ПРИ- выражает пространственную близость (= около вокзала)." },
-            { word: "пр..открыть", target: "и", options: ["е", "и"], taskNumber: 10, meaning: "Открыть не до конца, лишь слегка приподнять или приотворить створку.", rule: "Приставка ПРИ- обозначает неполноту действия (= открыть чуть-чуть)." },
-            { word: "пр..ступить закон", target: "е", options: ["е", "и"], taskNumber: 10, meaning: "Нарушить юридический закон или моральную заповедь, совершить правонарушение.", rule: "Приставка ПРЕ- близка по значению к приставке ПЕРЕ- (= переступить)." },
-            { word: "пр..ступить к работе", target: "и", options: ["е", "и"], taskNumber: 10, meaning: "Начать выполнять трудовые обязанности или намеченное дело.", rule: "Приставка ПРИ- в значении приближения, начала действия." },
-            { word: "пр..бывать в город", target: "и", options: ["е", "и"], taskNumber: 10, meaning: "Приезжать, добираться до пункта назначения (поезд прибывает).", rule: "Приставка ПРИ- со значением приближения, приезда." },
-            { word: "пр..бывать в неведении", target: "е", options: ["е", "и"], taskNumber: 10, meaning: "Находиться в состоянии неосведомлённости, не знать о происходящем.", rule: "Приставка ПРЕ- в значении нахождения где-либо (= быть)." },
-            { word: "пр..вратник", target: "и", options: ["е", "и"], taskNumber: 10, meaning: "Швейцар, сторож при входных воротах или дверях.", rule: "Приставка ПРИ- в значении «сторож при вратах»." },
-            { word: "пр..вратный смысл", target: "е", options: ["е", "и"], taskNumber: 10, meaning: "Искажённый, неправильно или превратно истолкованный смысл.", rule: "Приставка ПРЕ- в значении «перевёрнутый, искажённый» (= пере-)." },
-            { word: "пр..одолеть", target: "е", options: ["е", "и"], taskNumber: 10, meaning: "Пересилить препятствие, справиться с трудностями или преградой.", rule: "Приставка ПРЕ- со значением «пере-» (= пересилить преграду)." },
-            { word: "бе..шумный", target: "с", options: ["з", "с"], taskNumber: 10, meaning: "Не производящий никакого шума, совершенно тихий.", rule: "Приставки на З/С: буква С пишется перед глухим согласным [ш]." },
-            { word: "бе..вкусный", target: "з", options: ["з", "с"], taskNumber: 10, meaning: "Лишённый приятного вкуса либо лишённый чувства эстетики и меры.", rule: "Приставки на З/С: буква З пишется перед звонким согласным [в]." },
-            { word: "ра..писание", target: "с", options: ["з", "с"], taskNumber: 10, meaning: "График или таблица с указанием времени и порядка событий, занятий, поездов.", rule: "Приставка РАС- перед глухим звуком [п]." },
-            { word: "ни..вергать", target: "з", options: ["з", "с"], taskNumber: 10, meaning: "Свергать вниз, лишать высокого статуса, авторитета или власти.", rule: "Приставка НИЗ- пишется перед звонким звуком [в]." },
-            { word: "..дание", target: "з", options: ["з", "с"], taskNumber: 10, meaning: "Архитектурная постройка, дом, сооружение.", rule: "Здесь буква З входит в корень слова: «здание, здоровье, здесь, не зги»!" },
-            { word: "..делать", target: "с", options: ["з", "с"], taskNumber: 10, meaning: "Совершить действие, изготовить или исполнить порученное.", rule: "Неизменяемая приставка С-: приставки «З» в русском языке не существует." },
-            { word: "с..грать", target: "ы", options: ["и", "ы"], taskNumber: 10, meaning: "Принять участие в игре, исполнить музыкальное произведение на инструменте.", rule: "После русских приставок на согласную (кроме сверх-, меж-) И переходит в Ы." },
-            { word: "под..тожить", target: "ы", options: ["и", "ы"], taskNumber: 10, meaning: "Подвести итог, обобщить результаты проделанной работы.", rule: "После русской приставки ПОД- начальная гласная И переходит в Ы." },
-            { word: "сверх..нтересный", target: "и", options: ["и", "ы"], taskNumber: 10, meaning: "Вызывающий исключительный, крайне сильный интерес.", rule: "После приставки СВЕРХ- начальная гласная корня И сохраняется!" },
-            { word: "меж..нститутский", target: "и", options: ["и", "ы"], taskNumber: 10, meaning: "Происходящий между несколькими институтами или кафедрами.", rule: "После приставки МЕЖ- начальная гласная корня И сохраняется!" },
-            { word: "дез..нформация", target: "и", options: ["и", "ы"], taskNumber: 10, meaning: "Заведомо ложная информация, распространяемая для введения в заблуждение.", rule: "После иноязычных приставок (дез-, суб-, контр-, транс-) пишется И." },
-            { word: "вз..мать", target: "и", options: ["и", "ы"], taskNumber: 10, meaning: "Официально собирать, требовать уплаты налогов, пошлин или штрафов.", rule: "Слово «взимать» — исключение из правил перехода И в Ы." },
-            { word: "под..езд", target: "ъ", options: ["ъ", "ь"], taskNumber: 10, meaning: "Крытый вход в здание или дорожка, ведущая непосредственно к дому.", rule: "Разделительный Ъ пишется после приставок на согласный перед буквами Е, Ё, Ю, Я." },
-            { word: "об..явление", target: "ъ", options: ["ъ", "ь"], taskNumber: 10, meaning: "Официальное публичное извещение или реклама о чем-либо.", rule: "Разделительный Ъ пишется после приставки ОБ- перед буквой Я." },
-            { word: "вьюга", target: "ь", options: ["ъ", "ь"], taskNumber: 10, meaning: "Сильная снежная метель, буран с резкими порывами ветра.", rule: "Разделительный Ь пишется в корне или суффиксе перед Е, Ё, Ю, Я, И." },
-            { word: "п..едестал", target: "ь", options: ["ъ", "ь"], taskNumber: 10, meaning: "Подножие статуи, колонны; высокое почётное место победителя.", rule: "Разделительный Ь пишется внутри иноязычного корня перед буквой Е." },
-            { word: "суб..ект", target: "ъ", options: ["ъ", "ь"], taskNumber: 10, meaning: "Человек как носитель сознания и деятельности; сторона правоотношений.", rule: "Разделительный Ъ после иноязычной приставки СУБ- перед буквой Е." },
-            { word: "не..бходимый", target: "о", options: ["а", "о"], taskNumber: 10, meaning: "Такой, без которого невозможно обойтись; крайне нужный.", rule: "Неизменяемая приставка ОБ- (не + об + ходить)." },
-            { word: "пр..дедушка", target: "а", options: ["а", "о"], taskNumber: 10, meaning: "Отец дедушки или бабушки (прямой предок через поколение).", rule: "Приставка ПРА- указывает на первоначальность или степень родства." },
-            { word: "п..никнуть", target: "о", options: ["а", "о"], taskNumber: 10, meaning: "Опуститься вниз под тяжестью или ослабеть духом, расстроиться.", rule: "Неизменяемая русская приставка ПО-." },
+            // ЗАДАНИЕ 10: Приставки
+            { word: "пр..вокзальный", target: "и", options: ["е", "и"], taskNumber: 10, meaning: "Находящийся в непосредственной близости около вокзала.", rule: "Приставка ПРИ- в значении пространственной близости («около»)." },
+            { word: "пр..одолеть", target: "е", options: ["е", "и"], taskNumber: 10, meaning: "Справиться с трудностями или преградами.", rule: "Приставка ПРЕ- близка по значению к приставке ПЕРЕ-." },
+            { word: "пр..бывать в город", target: "и", options: ["е", "и"], taskNumber: 10, meaning: "Приезжать, добираться до места назначения.", rule: "Приставка ПРИ- в значении приближения." },
+            { word: "пр..бывать в неведении", target: "е", options: ["е", "и"], taskNumber: 10, meaning: "Находиться в определенном состоянии.", rule: "Омофон: ПРЕбывать = находиться где-то (пишется Е)." },
+            { word: "без..сходный", target: "ы", options: ["и", "ы"], taskNumber: 10, meaning: "Не имеющий выхода, безнадёжный.", rule: "После русской приставки на согласный (БЕЗ-) начальная И меняется на Ы." },
+            { word: "сверх..зысканный", target: "и", options: ["и", "ы"], taskNumber: 10, meaning: "Отличающийся чрезмерной утончённостью и изяществом.", rule: "После приставок СВЕРХ- и МЕЖ- начальная И сохраняется." },
+            { word: "под..тожить", target: "ы", options: ["и", "ы"], taskNumber: 10, meaning: "Подвести итог, сделать вывод.", rule: "После русской приставки на согласный (ПОД-) И переходит в Ы." },
+            { word: "под..езд", target: "ъ", options: ["ъ", "ь"], taskNumber: 10, meaning: "Вход в жилой дом, а также подъездная дорога.", rule: "Разделительный Ъ пишется после приставок на согласный перед Е, Ё, Ю, Я." },
+            { word: "без..ядерный", target: "ъ", options: ["ъ", "ь"], taskNumber: 10, meaning: "Не содержащий или не использующий атомное ядро/оружие.", rule: "Разделительный Ъ после приставки БЕЗ- перед буквой Я." },
+            { word: "в..юга", target: "ь", options: ["ъ", "ь"], taskNumber: 10, meaning: "Сильный ветер со снегом, метель.", rule: "Разделительный Ь пишется внутри корня перед Ю." },
 
-            // ЗАДАНИЕ 11: Правописание суффиксов
-            { word: "ноч..вка", target: "е", options: ["е", "ё", "о"], taskNumber: 11, meaning: "Остановка на ночлег во время похода или путешествия.", rule: "В отглагольных существительных после шипящих пишется Ё (ночевать -> ночёвка)." },
-            { word: "туш..нка", target: "е", options: ["е", "ё", "о"], taskNumber: 11, meaning: "Консервированное тушёное мясо длительного хранения.", rule: "В отглагольных существительных после шипящих пишется Ё (тушить -> тушёнка)." },
-            { word: "завед..вать", target: "о", options: ["о", "ы", "и"], taskNumber: 11, meaning: "Руководить, управлять организацией, отделом или хозяйством.", rule: "Суффикс -ОВА-/-ЕВА-: в 1 лице ед. ч. «я заведую» (оканчивается на -ую)." },
-            { word: "команд..вать", target: "о", options: ["о", "ы", "и"], taskNumber: 11, meaning: "Отдавать распоряжения войскам или распоряжаться окружающими.", rule: "Суффикс -ОВА-: «я командую» (суффикс выпадает в форме 1-го лица)." },
-            { word: "рассматр..вать", target: "и", options: ["е", "и", "ы"], taskNumber: 11, meaning: "Внимательно вглядываться либо подвергать детальному анализу вопрос.", rule: "Суффикс -ИВА-: «я рассматриваю» (суффикс сохраняется в форме 1-го лица)." },
-            { word: "наста..вать", target: "и", options: ["е", "и", "ы"], taskNumber: 11, meaning: "Упорно требовать своего либо выдерживать настойку на травах.", rule: "Суффикс -ИВА-: в форме 1-го лица «я настаиваю» (суффикс остаётся)." },
-            { word: "ноздр..ватый", target: "е", options: ["е", "о"], taskNumber: 11, meaning: "Имеющий множество мелких отверстий или пор (о сыре, хлебном мякише).", rule: "Суффикс -ЕВАТ- пишется после мягких согласных и шипящих." },
-            { word: "глянц..витый", target: "е", options: ["е", "о"], taskNumber: 11, meaning: "Имеющий блестящую, лоснящуюся гладкую поверхность.", rule: "Суффикс -ЕВИТ- после согласного Ц." },
-            { word: "заст..нчивый", target: "е", options: ["е", "и"], taskNumber: 11, meaning: "Стеснительный, робкий в общении с посторонними людьми человек.", rule: "В корне пишется Е (застенчивый от «застенок»), суффикс -ЧИВ-." },
-            { word: "причуд..ливый", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Замысловатый, необычный и оригинальный по форме или виду.", rule: "В неизменяемом суффиксе -ЛИВ- всегда пишется буква И." },
-            { word: "тюл..вый", target: "е", options: ["е", "и"], taskNumber: 11, meaning: "Сшитый из тюля (тонкой сетчатой прозрачной ткани).", rule: "Суффикс -ЕВ- в прилагательных без ударения (тюль -> тюлевый)." },
-            { word: "крас..вый", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Приятный для взгляда, обладающий внешней гармонией и привлекательностью.", rule: "Суффикс -ИВ- в качественных прилагательных под ударением." },
-            { word: "милост..вый", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Проявляющий доброту, снисхождение и милосердие к слабым.", rule: "«Милостивый» и «юродивый» — исключения с суффиксом -ИВ- без ударения." },
-            { word: "юрод..вый", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Чудаковатый, странный человек; в старину — религиозный подвижник.", rule: "«Юродивый» — исключение с суффиксом -ИВ- без ударения." },
-            { word: "солом..нка", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Один тонкий стебель соломы или трубочка для питья напитков.", rule: "Суффикс -ИНК- пишется в словах на -ина (соломина -> соломинка)." },
-            { word: "песч..нка", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Отдельная мельчайшая крупинка песка.", rule: "Суффикс -ИНК- от слова «песчина»." },
-            { word: "виш..нка", target: "е", options: ["е", "и"], taskNumber: 11, meaning: "Маленькая ягода вишни.", rule: "Суффикс -ЕНК- пишется в словах на -ня с беглой гласной (вишня -> вишенок -> вишенка)." },
-            { word: "француз..кий", target: "с", options: ["к", "с"], taskNumber: 11, meaning: "Относящийся к Франции, её жителям, культуре или языку.", rule: "Суффикс -СК-: основа на З, пишется французский (без усечения)." },
-            { word: "матрос..кий", target: "с", options: ["к", "с"], taskNumber: 11, meaning: "Свойственный матросу или принадлежащий ему.", rule: "Суффикс -СК-: основа оканчивается на С, получается матросский." },
-            { word: "досветл..", target: "а", options: ["а", "о"], taskNumber: 11, meaning: "До наступления рассвета, пока ещё не стало светло.", rule: "В наречиях с приставками ДО-, ИЗ-, С- на конце пишется А (правило 'окна')." },
-            { word: "занов..", target: "о", options: ["а", "о"], taskNumber: 11, meaning: "С самого начала, повторно, с чистого листа.", rule: "В наречиях с приставками В-, НА-, ЗА- на конце пишется О." },
-            { word: "издавн..", target: "а", options: ["а", "о"], taskNumber: 11, meaning: "С давних времён, очень давно.", rule: "В наречиях с приставкой ИЗ- пишется суффикс -А (из окна -> издавна)." },
-            { word: "слев..", target: "а", options: ["а", "о"], taskNumber: 11, meaning: "С левой стороны по направлению движения.", rule: "Наречие с приставкой С-: пишется суффикс -А (с окна -> слева)." },
-            { word: "наглух..", target: "о", options: ["а", "о"], taskNumber: 11, meaning: "Плотно, без малейших щелей или зазоров (закрыть наглухо).", rule: "Наречие с приставкой НА-: пишется суффикс -О (на окно -> наглухо)." },
-            { word: "ключ..к", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Маленький инструмент для отпирания замка.", rule: "Суффикс -ИК-: при склонении гласная не выпадает (ключик -> ключика)." },
-            { word: "замоч..к", target: "е", options: ["е", "и"], taskNumber: 11, meaning: "Небольшой замок для шкатулки, сумочки или двери.", rule: "Суффикс -ЕК-: при склонении гласная выпадает (замочек -> замочка)." },
-            { word: "горош..к", target: "е", options: ["е", "и"], taskNumber: 11, meaning: "Круглые зёрна посевного гороха.", rule: "Суффикс -ЕК-: гласная выпадает при склонении (горошек -> горошка)." },
-            { word: "ситц..вый", target: "е", options: ["е", "о"], taskNumber: 11, meaning: "Сшитый из ситца (лёгкой набивной хлопчатобумажной ткани).", rule: "Суффикс -ЕВ- после шипящих и Ц в безударной позиции." },
-            { word: "парч..вый", target: "о", options: ["е", "о"], taskNumber: 11, meaning: "Сшитый из парчи (тяжёлой шелковой ткани с золотыми/серебряными нитями).", rule: "В суффиксах прилагательных под ударением после шипящих пишется О." },
-            { word: "холщ..вый", target: "о", options: ["е", "о"], taskNumber: 11, meaning: "Сделанный из простого грубого льняного полотна (холста).", rule: "Суффикс -ОВ- под ударением после шипящего звука." },
+            // ЗАДАНИЕ 11: Суффиксы
+            { word: "завед..вать", target: "о", options: ["о", "ы"], taskNumber: 11, meaning: "Руководить, управлять каким-либо учреждением или процессом.", rule: "Форма 1 лица 'я заведую' (-ую/-юю) -> пишется суффикс -ОВА-." },
+            { word: "рассматр..вать", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Внимательно глядеть, изучать детали.", rule: "Форма 1 лица 'я рассматриваю' (-иваю) -> пишется суффикс -ИВА-." },
+            { word: "ливн..вый", target: "е", options: ["е", "и"], taskNumber: 11, meaning: "Относящийся к сильному проливному дождю.", rule: "Безударный суффикс прилагательных -ЕВ- (под ударением -ИВ-: краси́вый)." },
+            { word: "фасол..вый", target: "е", options: ["е", "и"], taskNumber: 11, meaning: "Приготовленный из бобов фасоли.", rule: "Безударный суффикс прилагательных -ЕВ-." },
+            { word: "усидч..вый", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Способный долго заниматься одним делом без усталости.", rule: "Неизменяемый суффикс качественных прилагательных -ЧИВ-." },
+            { word: "заботл..вый", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Внимательный к нуждам и удобству окружающих.", rule: "Неизменяемый суффикс прилагательных -ЛИВ-." },
+            { word: "горош..к", target: "е", options: ["е", "и"], taskNumber: 11, meaning: "Маленькая горошина или мелкий рисунок кружочками.", rule: "При склонении гласная выпадает: горошка -> суффикс -ЕК-." },
+            { word: "ключ..к", target: "и", options: ["е", "и"], taskNumber: 11, meaning: "Небольшой инструмент для отпирания замка.", rule: "При склонении гласная сохраняется: ключика -> суффикс -ИК-." },
 
-            // ЗАДАНИЕ 12: Окончания глаголов и суффиксы причастий
-            { word: "стел..т туман", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Туман низко и ровно покрывает землю, расстилается над полями.", rule: "Глагол-исключение «стелить» относится к I спряжению: он стелет." },
-            { word: "бре..тся старик", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Срезает бритвой бороду или усы на лице.", rule: "Глагол-исключение «брить» относится к I спряжению: он бреется." },
-            { word: "дыш..щий тяжело", target: "а", options: ["а", "у"], taskNumber: 12, meaning: "Человек, вдыхающий и выдыхающий воздух с трудом или одышкой.", rule: "Причастие от глагола-исключения «дышать» (II спряжение): суффикс -АЩ-." },
-            { word: "держ..т слово", target: "и", options: ["е", "и"], taskNumber: 12, meaning: "Строго выполняет свои обещания и обязательства.", rule: "Глагол-исключение «держать» относится ко II спряжению: он держит." },
-            { word: "вид..мый издали", target: "и", options: ["е", "и"], taskNumber: 12, meaning: "Объект, который можно разглядеть с большого расстояния.", rule: "Причастие от глагола-исключения «видеть» (II спр.): суффикс -ИМ-." },
-            { word: "гон..мый ветром", target: "и", options: ["е", "и"], taskNumber: 12, meaning: "Быстро перемещаемый сильным потоком воздуха (о тучах, листьях, парусах).", rule: "Причастие от глагола-исключения «гнать» (II спряжение): суффикс -ИМ-." },
-            { word: "стел..щийся плющ", target: "ю", options: ["а", "я", "у", "ю"], taskNumber: 12, meaning: "Вьющееся растение, побеги которого стелются по земле или стенам.", rule: "От глагола-исключения «стелить» (I спр.): суффикс -ЮЩ-." },
-            { word: "бор..щийся за мир", target: "ю", options: ["а", "я", "у", "ю"], taskNumber: 12, meaning: "Тот, кто активно отстаивает мирные принципы и права.", rule: "От глагола «бороться» (I спряжение): суффикс -ЮЩ-." },
-            { word: "кол..щий дрова", target: "ю", options: ["а", "я", "у", "ю"], taskNumber: 12, meaning: "Работник, раскалывающий поленья топором или колуном.", rule: "От глагола «колоть» (I спряжение): суффикс -ЮЩ-." },
-            { word: "та..щий снег", target: "я", options: ["а", "я", "у", "ю"], taskNumber: 12, meaning: "Снег, переходящий в воду под действием тепла и солнца.", rule: "От глагола «таять» (I спряжение на -ять): суффикс -ЯЩ- (-ЮЩ-)." },
-            { word: "кле..щий обои", target: "я", options: ["а", "я", "у", "ю"], taskNumber: 12, meaning: "Мастер, прикрепляющий рулоны обоев к стене клеем.", rule: "От глагола «клеить» (II спряжение): пишется суффикс -ЯЩ-." },
-            { word: "люб..щий сын", target: "я", options: ["а", "я", "у", "ю"], taskNumber: 12, meaning: "Сын, испытывающий глубокую нежность, заботу и преданность родителям.", rule: "От глагола «любить» (II спряжение): пишется суффикс -ЯЩ-." },
-            { word: "ненавид..мый всеми", target: "и", options: ["е", "и"], taskNumber: 12, meaning: "Человек или враг, к которому окружающие испытывают стойкую ненависть.", rule: "От глагола-исключения «ненавидеть» (II спряжение): суффикс -ИМ-." },
-            { word: "колебл..мый ветром", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Качающийся или колышущийся от дуновения ветра (о тростнике, листве).", rule: "От глагола «колебать» (I спряжение): пишется суффикс -ЕМ-." },
-            { word: "приемл..мый ответ", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Удовлетворительный, допустимый, с которым можно согласиться.", rule: "От глагола «принимать/приять» (I спряжение): суффикс -ЕМ-." },
-            { word: "они маш..т руками", target: "у", options: ["а", "у"], taskNumber: 12, meaning: "Делают приветственные или прощальные взмахи руками.", rule: "Глагол «махать» (I спряжение): окончание -ут." },
-            { word: "они пил..т дрова", target: "я", options: ["а", "я", "у", "ю"], taskNumber: 12, meaning: "Разрезают пилой брёвна на поленья.", rule: "Глагол «пилить» (II спряжение): окончание -ят." },
-            { word: "они кле..т коробку", target: "я", options: ["а", "я", "у", "ю"], taskNumber: 12, meaning: "Соединяют клеем стенки картонной коробки.", rule: "Глагол «клеить» (II спряжение): окончание -ят." },
-            { word: "он услыш..т песню", target: "и", options: ["е", "и"], taskNumber: 12, meaning: "Воспримет слухом мелодию и слова песни.", rule: "Глагол «услышать» (исключение на -ать, II спряжение): окончание -ит." },
-            { word: "он се..т пшеницу", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Рассыпает зёрна в подготовленную почву для будущего урожая.", rule: "Глагол «сеять» оканчивается на -ять (I спряжение): он сеет." },
-            { word: "он ве..т прохладой", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Откуда-то слабо дует свежий прохладный ветерок.", rule: "Глагол «веять» (I спряжение на -ять): он веет." },
-            { word: "он леле..т мечту", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Бережно хранит в душе заветное желание и надежду.", rule: "Глагол «лелеять» (I спряжение на -ять): он лелеет." },
-            { word: "завис..мый человек", target: "и", options: ["е", "и"], taskNumber: 12, meaning: "Человек, находящийся в чьей-либо власти или не способный обойтись без чужой воли.", rule: "От глагола-исключения «зависеть» (II спряжение): суффикс -ИМ-." },
-            { word: "увид..нный фильм", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Кинокартина, которую уже посмотрели.", rule: "В страдательных причастиях прош. вр. глагол на -еть сохраняет Е: увиденный." },
-            { word: "засе..нное поле", target: "я", options: ["е", "я"], taskNumber: 12, meaning: "Участок земли, засеянный семенами сельскохозяйственных культур.", rule: "Причастие от глагола на -ять сохраняет гласную Я перед -НН-: засеянный." },
-            { word: "разве..нный миф", target: "я", options: ["е", "я"], taskNumber: 12, meaning: "Опровергнутое, разоблачённое ложное заблуждение или легенда.", rule: "От глагола «развеять»: суффикс Я сохраняется перед -НН-." },
-            { word: "скле..нный конверт", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Почтовый конверт, клапан которого запечатан клеем.", rule: "Глагол на -ить («склеить») меняет суффикс на -ЕНН-: склеенный." },
-            { word: "выкач..нная бочка", target: "е", options: ["е", "а"], taskNumber: 12, meaning: "Бочка, которую выкатили (перекатили) наружу из подвала или сарая.", rule: "От глагола «выкатить» (на -ить): суффикс меняется на -ЕНН-." },
-            { word: "выкач..нная нефть", target: "а", options: ["е", "а"], taskNumber: 12, meaning: "Нефть, которую откачали (добыли) насосом из скважины.", rule: "От глагола «выкачать» (на -ать): гласная А сохраняется перед -НН-." },
-            { word: "обессил..л от усталости", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Сам лишился физических сил от тяжёлой работы или долгого пути.", rule: "Сам потерял силы — непереходный глагол, пишется суффикс -Е-." },
-            { word: "враг обессил..л город", target: "и", options: ["е", "и"], taskNumber: 12, meaning: "Противник лишил город продовольствия и защитных ресурсов.", rule: "Лишил сил кого-то — переходный глагол, пишется суффикс -И-." }
+            // ЗАДАНИЕ 12: Окончания и причастия
+            { word: "приемл..мый ответ", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Удовлетворительный, допустимый, с которым можно согласиться.", rule: "От глагола 'принимать/приять' (I спряжение): страдательный суффикс -ЕМ-." },
+            { word: "колебл..мый ветром", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Мерно раскачивающийся от порывов ветра.", rule: "От глагола 'колебать' (I спряжение): суффикс -ЕМ-." },
+            { word: "стел..щийся плющ", target: "ю", options: ["я", "ю"], taskNumber: 12, meaning: "Стелющийся побегами низко по земле или стене.", rule: "Исключение 'стелить' (I спряжение): действительный суффикс -ЮЩ-." },
+            { word: "дыш..щий воздухом", target: "а", options: ["а", "у"], taskNumber: 12, meaning: "Втягивающий и выпускающий кислород живой организм.", rule: "Исключение 'дышать' (II спряжение): суффикс причастия -АЩ-." },
+            { word: "он услыш..т", target: "и", options: ["е", "и"], taskNumber: 12, meaning: "Воспримет звук слухом в будущем времени.", rule: "Исключение 'услышать' (II спряжение): окончание -ИТ." },
+            { word: "он стел..т", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Раскладывает по поверхности ткань или постель.", rule: "Исключение 'стелить' (I спряжение): окончание -ЕТ." },
+            { word: "разве..нный миф", target: "я", options: ["е", "я"], taskNumber: 12, meaning: "Опровергнутое ложное суждение или вымысел.", rule: "Перед -НН- сохраняется гласная инфинитива 'развеять' -> Я." },
+            { word: "скле..нный лист", target: "е", options: ["е", "и"], taskNumber: 12, meaning: "Соединённый клеем предмет из бумаги.", rule: "От глагола на -ИТЬ ('склеить') перед -НН- пишется суффикс -ЕНН-." }
         ];
 
-        // ========================================================
-        // 2. GEMINI API ИНТЕГРАЦИЯ
-        // ========================================================
-        const GEMINI_API_KEY = ""; // Key is injected at runtime
-        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${GEMINI_API_KEY}`;
-
-        // Функция запроса к Gemini с экспоненциальной задержкой
-        async function fetchGeminiWithBackoff(payload, maxRetries = 3) {
-            let delay = 1000;
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(GEMINI_API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (response.ok) {
-                        return await response.json();
-                    }
-                } catch (err) {
-                    // Backoff retry
-                }
-                await new Promise(r => setTimeout(r, delay));
-                delay *= 2;
-            }
-            throw new Error("Не удалось получить ответ от нейросети");
-        }
-
-        // Вызов ИИ-репетитора для текущего слова
-        async function askAITutor(isRegenerate = false) {
-            if (!currentCard) return;
-
-            toggleAIModal(true);
-            const bodyEl = document.getElementById('ai-modal-body');
-            const wordEl = document.getElementById('ai-modal-word');
-            const fullWord = currentCard.word.replace('..', currentCard.target.toUpperCase());
-
-            wordEl.textContent = `Разбор: ${fullWord} (Задание ${currentCard.taskNumber})`;
-
-            bodyEl.innerHTML = `
-                <div class="py-10 flex flex-col items-center justify-center space-y-3">
-                    <div class="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-                    <p class="text-xs text-slate-500 font-semibold animate-pulse">ИИ-Репетитор готовит разбор орфограммы и запоминалку...</p>
-                </div>
-            `;
-
-            const systemPrompt = `Ты — лучший эксперт-репетитор по русскому языку и подготовке к ЕГЭ. Твоя задача — кратко, кристально понятно и структурно объяснить орфограмму ученику. Используй живой тон, форматирование с эмодзи и выдели ключевое правило, ловушки ЕГЭ и лайфхак/стишок для запоминания.`;
-            
-            const userPrompt = `Объясни правописание слова/словосочетания "${fullWord}" (пропуск был на месте буквы "${currentCard.target.toUpperCase()}"). 
-Категория: Задание ${currentCard.taskNumber} ЕГЭ.
-Базовое правило: ${currentCard.rule}.
-
-Структурируй ответ так:
-1. 📌 Почему именно буква "${currentCard.target.toUpperCase()}" (краткий разбор части слова/спряжения).
-2. ⚠️ Ловушка ЕГЭ: с чем часто путают это слово на экзамене.
-3. 💡 Лайфхак или рифмовка для лёгкого запоминания на всю жизнь.`;
-
-            const payload = {
-                contents: [{ parts: [{ text: userPrompt }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] }
-            };
-
-            try {
-                const data = await fetchGeminiWithBackoff(payload);
-                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!text) throw new Error("Пустой ответ");
-
-                // Простое форматирование Markdown в HTML
-                let formattedHtml = text
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                    .replace(/\n\n/g, '<div class="my-2"></div>')
-                    .replace(/\n/g, '<br>');
-
-                bodyEl.innerHTML = `
-                    <div class="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/50 dark:border-indigo-900/40 text-xs text-indigo-900 dark:text-indigo-200 font-medium">
-                        Слово: <strong class="text-sm font-bold">${fullWord}</strong> | Задание ЕГЭ №${currentCard.taskNumber}
-                    </div>
-                    <div class="text-slate-800 dark:text-slate-200 space-y-2">
-                        ${formattedHtml}
-                    </div>
-                `;
-            } catch (err) {
-                bodyEl.innerHTML = `
-                    <div class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 text-xs">
-                        <i class="fa-solid fa-circle-exclamation mr-1"></i> Не удалось подключиться к ИИ-Репетитору. Базовое правило: 
-                        <div class="font-bold mt-2">${currentCard.rule}</div>
-                    </div>
-                `;
-            }
-        }
-
-        // Генерация совершенно нового задания через Gemini API (Structured JSON)
-        async function generateAIQuestion() {
-            const btn = document.getElementById('generate-ai-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span class="hidden md:inline">Генерация...</span>`;
-            btn.disabled = true;
-
-            const targetTask = currentMode === 'mix' || currentMode === 'mistakes' 
-                ? [9, 10, 11, 12][Math.floor(Math.random() * 4)] 
-                : Number(currentMode);
-
-            const prompt = `Создай 1 сложное или часто встречающееся задание формата ЕГЭ по русскому языку для Задания №${targetTask}.
-Слово или словосочетание должно содержать пропуск двух точек '..'.
-Верни строго JSON объект следующей структуры:
-{
-  "word": "слово или фраза с двумя точками вместо орфограммы, например: пр..одолеть",
-  "target": "правильная буква (одна буква на русском в нижнем регистре)",
-  "options": ["массив из 2-4 вариантов букв на русском, включая правильную, например: ['е', 'и']"],
-  "taskNumber": ${targetTask},
-  "meaning": "понятное толкование и значение этого слова или выражения",
-  "rule": "чёткое правило ЕГЭ, объясняющее выбор этой буквы"
-}`;
-
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "OBJECT",
-                        properties: {
-                            "word": { "type": "STRING" },
-                            "target": { "type": "STRING" },
-                            "options": {
-                                "type": "ARRAY",
-                                "items": { "type": "STRING" }
-                            },
-                            "taskNumber": { "type": "INTEGER" },
-                            "meaning": { "type": "STRING" },
-                            "rule": { "type": "STRING" }
-                        },
-                        required: ["word", "target", "options", "taskNumber", "meaning", "rule"]
-                    }
-                }
-            };
-
-            try {
-                const data = await fetchGeminiWithBackoff(payload);
-                const jsonText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (!jsonText) throw new Error("Нет данных от модели");
-                
-                const newQuestion = JSON.parse(jsonText);
-                newQuestion.isAI = true;
-
-                // Добавляем в текущую базу и запускаем
-                DATABASE.unshift(newQuestion);
-                currentCard = newQuestion;
-                isLocked = false;
-                renderCard();
-            } catch (e) {
-                console.error("Ошибка при генерации задания:", e);
-                // Если сбой, просто берем стандартную карточку
-                nextCard();
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        function toggleAIModal(show) {
-            const modal = document.getElementById('ai-modal');
-            if (show) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        }
-
-        // ========================================================
-        // 3. СОСТОЯНИЕ ПРИЛОЖЕНИЯ И LOCALSTORAGE
-        // ========================================================
         const STORAGE_KEY = 'ege_rus_trainer_v2';
-        let currentMode = 'mix'; // 'mix', 9, 10, 11, 12, 'mistakes'
+        const ACCOUNTS_STORAGE_KEY = 'ege_rus_accounts_v1';
+        const CURRENT_USER_KEY = 'ege_rus_current_user_v1';
+        const ADMIN_PASSWORD = "admin123";
+
+        let currentMode = 'mix';
         let currentCard = null;
         let isLocked = false;
         let sessionCount = 1;
+        let authCurrentTab = 'login';
+        let currentUser = null;
+        let cachedAdminStudents = [];
+        window.isAdminOpen = false;
 
         let state = {
             streak: 0,
@@ -635,32 +660,107 @@
             correctAnswers: 0,
             mistakes: []
         };
+        window.state = state;
+
+        function getAccounts() {
+            try {
+                const accs = localStorage.getItem(ACCOUNTS_STORAGE_KEY);
+                return accs ? JSON.parse(accs) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveAccounts(accounts) {
+            try {
+                localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify(accounts));
+            } catch (e) {}
+        }
+
+        function getUserStateKey(userEmail) {
+            return userEmail ? `ege_state_${userEmail.toLowerCase().trim()}` : STORAGE_KEY;
+        }
 
         function loadState() {
             try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    state = { ...state, ...parsed };
+                const savedUser = localStorage.getItem(CURRENT_USER_KEY);
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
                 }
+                const stateKey = getUserStateKey(currentUser?.email);
+                const savedState = localStorage.getItem(stateKey);
+                if (savedState) {
+                    window.state = { ...{ streak: 0, maxStreak: 0, totalAnswers: 0, correctAnswers: 0, mistakes: [] }, ...JSON.parse(savedState) };
+                } else {
+                    window.state = { streak: 0, maxStreak: 0, totalAnswers: 0, correctAnswers: 0, mistakes: [] };
+                }
+                state = window.state;
             } catch (e) {
                 console.error('Ошибка загрузки данных', e);
             }
+            updateUserUI();
             updateStatsUI();
             updateMistakesBadge();
         }
 
         function saveState() {
             try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                const stateKey = getUserStateKey(currentUser?.email);
+                localStorage.setItem(stateKey, JSON.stringify(window.state));
             } catch (e) {
                 console.error('Ошибка сохранения данных', e);
             }
+            if (typeof window.saveCloudState === 'function') {
+                window.saveCloudState();
+            }
         }
 
-        // ========================================================
-        // 4. УПРАВЛЕНИЕ РЕЖИМАМИ И КАРТОЧКАМИ
-        // ========================================================
+        function updateUserUI() {
+            const btnName = document.getElementById('user-display-name');
+            const avatar = document.getElementById('user-avatar-circle');
+            const dropName = document.getElementById('dropdown-user-name');
+            const dropId = document.getElementById('dropdown-user-id');
+
+            const cloudId = typeof window.getCurrentUserId === 'function' ? window.getCurrentUserId() : null;
+            if (dropId && cloudId) {
+                dropId.textContent = `ID: ${cloudId}`;
+            }
+
+            if (currentUser) {
+                btnName.textContent = currentUser.name;
+                avatar.innerHTML = currentUser.name.charAt(0).toUpperCase();
+                avatar.className = 'w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold uppercase';
+                if (dropName) dropName.textContent = currentUser.name;
+            } else {
+                btnName.textContent = 'Войти';
+                avatar.innerHTML = '<i class="fa-solid fa-user"></i>';
+                avatar.className = 'w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold uppercase';
+            }
+        }
+
+        function updateStatsUI() {
+            document.getElementById('streak-counter').textContent = window.state.streak;
+            document.getElementById('stat-total').textContent = window.state.totalAnswers;
+            document.getElementById('stat-correct').textContent = window.state.correctAnswers;
+            document.getElementById('stat-max-streak').textContent = `${window.state.maxStreak} 🔥`;
+
+            const accuracy = window.state.totalAnswers > 0 
+                ? Math.round((window.state.correctAnswers / window.state.totalAnswers) * 100) 
+                : 100;
+            document.getElementById('accuracy-counter').textContent = `${accuracy}%`;
+        }
+
+        function updateMistakesBadge() {
+            const badge = document.getElementById('mistakes-badge');
+            const count = window.state.mistakes.length;
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
         function setMode(mode) {
             currentMode = mode;
             sessionCount = 1;
@@ -678,7 +778,7 @@
 
         function getPool() {
             if (currentMode === 'mistakes') {
-                return state.mistakes.length > 0 ? state.mistakes : DATABASE;
+                return window.state.mistakes.length > 0 ? window.state.mistakes : DATABASE;
             }
             if (currentMode === 'mix') {
                 return DATABASE;
@@ -691,7 +791,6 @@
             const pool = getPool();
 
             if (!pool || pool.length === 0) {
-                alert('В этой категории пока нет слов для тренировки.');
                 setMode('mix');
                 return;
             }
@@ -754,9 +853,6 @@
             });
         }
 
-        // ========================================================
-        // 5. ПРОВЕРКА ОТВЕТА
-        // ========================================================
         function handleAnswer(selectedLetter) {
             if (isLocked) return;
             isLocked = true;
@@ -766,17 +862,17 @@
             const gap = document.getElementById('gap-highlight');
             const keyboardHint = document.getElementById('keyboard-hint');
 
-            state.totalAnswers++;
+            window.state.totalAnswers++;
 
             if (isCorrect) {
-                state.correctAnswers++;
-                state.streak++;
-                if (state.streak > state.maxStreak) {
-                    state.maxStreak = state.streak;
+                window.state.correctAnswers++;
+                window.state.streak++;
+                if (window.state.streak > window.state.maxStreak) {
+                    window.state.maxStreak = window.state.streak;
                 }
 
                 if (currentMode === 'mistakes') {
-                    state.mistakes = state.mistakes.filter(m => m.word !== currentCard.word);
+                    window.state.mistakes = window.state.mistakes.filter(m => m.word !== currentCard.word);
                     updateMistakesBadge();
                 }
 
@@ -797,10 +893,10 @@
                 }, 800);
 
             } else {
-                state.streak = 0;
+                window.state.streak = 0;
 
-                if (!state.mistakes.some(m => m.word === currentCard.word)) {
-                    state.mistakes.push(currentCard);
+                if (!window.state.mistakes.some(m => m.word === currentCard.word)) {
+                    window.state.mistakes.push(currentCard);
                     updateMistakesBadge();
                 }
 
@@ -820,7 +916,7 @@
                 const meaningText = document.getElementById('meaning-text');
 
                 ruleText.textContent = currentCard.rule;
-                meaningText.textContent = currentCard.meaning || "Лексическое значение слова уточняется по словарю.";
+                meaningText.textContent = currentCard.meaning || "Лексическое значение слова уточняется по контексту.";
                 ruleBox.classList.remove('hidden');
 
                 saveState();
@@ -844,13 +940,514 @@
             });
         }
 
-        // ========================================================
-        // 6. КЛАВИАТУРА
-        // ========================================================
+        function toggleAdminAuthModal(show) {
+            const modal = document.getElementById('admin-auth-modal');
+            const errorDiv = document.getElementById('admin-auth-error');
+            const passInput = document.getElementById('admin-pass-input');
+            if (errorDiv) errorDiv.classList.add('hidden');
+            if (passInput) passInput.value = '';
+
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => passInput?.focus(), 100);
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('admin-pass-input').value.trim();
+            const errorDiv = document.getElementById('admin-auth-error');
+
+            if (pass === ADMIN_PASSWORD) {
+                toggleAdminAuthModal(false);
+                toggleAdminDashboard(true);
+            } else {
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function toggleAdminDashboard(show) {
+            const modal = document.getElementById('admin-dashboard-modal');
+            window.isAdminOpen = show;
+            if (show) {
+                renderAdminDashboard();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function renderAdminDashboard() {
+            const localAccounts = getAccounts();
+            const cloudLeaders = typeof window.getCloudLeaders === 'function' ? window.getCloudLeaders() : [];
+            const mergedMap = new Map();
+
+            localAccounts.forEach(acc => {
+                const sKey = getUserStateKey(acc.email);
+                let accState = { totalAnswers: 0, correctAnswers: 0, maxStreak: 0, mistakes: [] };
+                try {
+                    const saved = localStorage.getItem(sKey);
+                    if (saved) accState = JSON.parse(saved);
+                } catch(e) {}
+                mergedMap.set(acc.email, {
+                    id: acc.email,
+                    name: acc.name,
+                    correctAnswers: accState.correctAnswers || 0,
+                    totalAnswers: accState.totalAnswers || 0,
+                    maxStreak: accState.maxStreak || 0,
+                    mistakesCount: Array.isArray(accState.mistakes) ? accState.mistakes.length : 0,
+                    source: 'Аккаунт'
+                });
+            });
+
+            cloudLeaders.forEach(item => {
+                const key = item.userId || item.userName;
+                const existing = mergedMap.get(key);
+                if (existing) {
+                    existing.correctAnswers = Math.max(existing.correctAnswers, item.correctAnswers || 0);
+                    existing.totalAnswers = Math.max(existing.totalAnswers, item.totalAnswers || 0);
+                    existing.maxStreak = Math.max(existing.maxStreak, item.maxStreak || 0);
+                } else {
+                    mergedMap.set(key, {
+                        id: item.userId || 'ID-не указан',
+                        name: item.userName || 'Ученик',
+                        correctAnswers: item.correctAnswers || 0,
+                        totalAnswers: item.totalAnswers || 0,
+                        maxStreak: item.maxStreak || 0,
+                        mistakesCount: 0,
+                        source: 'Облако'
+                    });
+                }
+            });
+
+            const curUid = typeof window.getCurrentUserId === 'function' ? window.getCurrentUserId() : 'Текущий';
+            if (!mergedMap.has(curUid) && window.state.totalAnswers > 0) {
+                mergedMap.set(curUid, {
+                    id: curUid,
+                    name: currentUser?.name || 'Вы (Текущий)',
+                    correctAnswers: window.state.correctAnswers,
+                    totalAnswers: window.state.totalAnswers,
+                    maxStreak: window.state.maxStreak,
+                    mistakesCount: window.state.mistakes.length,
+                    source: 'Сессия'
+                });
+            }
+
+            cachedAdminStudents = Array.from(mergedMap.values());
+            cachedAdminStudents.sort((a, b) => b.correctAnswers - a.correctAnswers);
+
+            let sumTotalAnswers = 0;
+            let sumCorrectAnswers = 0;
+            let overallMaxStreak = 0;
+
+            cachedAdminStudents.forEach(st => {
+                sumTotalAnswers += st.totalAnswers;
+                sumCorrectAnswers += st.correctAnswers;
+                if (st.maxStreak > overallMaxStreak) overallMaxStreak = st.maxStreak;
+            });
+
+            const overallAcc = sumTotalAnswers > 0 ? Math.round((sumCorrectAnswers / sumTotalAnswers) * 100) : 100;
+
+            document.getElementById('admin-kpi-students').textContent = cachedAdminStudents.length;
+            document.getElementById('admin-kpi-total-answers').textContent = sumTotalAnswers;
+            document.getElementById('admin-kpi-max-streak').textContent = `${overallMaxStreak} 🔥`;
+            document.getElementById('admin-kpi-accuracy').textContent = `${overallAcc}%`;
+
+            renderAdminStudentsTable(cachedAdminStudents);
+            renderTroubleWords();
+        }
+
+        function renderAdminStudentsTable(list) {
+            const tbody = document.getElementById('admin-students-tbody');
+            if (!tbody) return;
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Нет данных об учениках</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = list.map(st => {
+                const acc = st.totalAnswers > 0 ? Math.round((st.correctAnswers / st.totalAnswers) * 100) : 0;
+                return `
+                    <tr class="hover:bg-slate-100/60 dark:hover:bg-slate-800/60 transition">
+                        <td class="p-2.5">
+                            <div class="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                <span>${st.name}</span>
+                                <span class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50">${st.source}</span>
+                            </div>
+                            <div class="text-[10px] text-slate-400 font-mono truncate max-w-[150px] sm:max-w-xs">${st.id}</div>
+                        </td>
+                        <td class="p-2.5 font-bold text-emerald-600 dark:text-emerald-400">${st.correctAnswers}</td>
+                        <td class="p-2.5 text-slate-600 dark:text-slate-300">${st.totalAnswers}</td>
+                        <td class="p-2.5 font-semibold text-amber-600 dark:text-amber-400"><i class="fa-solid fa-fire text-[10px]"></i> ${st.maxStreak}</td>
+                        <td class="p-2.5 font-bold ${acc >= 75 ? 'text-emerald-600' : 'text-amber-600'}">${acc}%</td>
+                        <td class="p-2.5 font-semibold text-rose-500">${st.mistakesCount}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterAdminStudents() {
+            const query = (document.getElementById('admin-search-input')?.value || '').toLowerCase().trim();
+            if (!query) {
+                renderAdminStudentsTable(cachedAdminStudents);
+                return;
+            }
+            const filtered = cachedAdminStudents.filter(s => 
+                s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query)
+            );
+            renderAdminStudentsTable(filtered);
+        }
+
+        function renderTroubleWords() {
+            const container = document.getElementById('admin-trouble-words');
+            if (!container) return;
+
+            const defaultTroubles = [
+                { word: "пр..емлемый ответ", target: "е", task: 12, rule: "От 'принять' (I спр.): суффикс -ЕМ-" },
+                { word: "под..тожить", target: "ы", task: 10, rule: "Русская приставка на согласный: И -> Ы" },
+                { word: "стел..щийся плющ", target: "ю", task: 12, rule: "Исключение 'стелить' (I спр.): -ЮЩ-" },
+                { word: "выск..чка", target: "о", task: 9, rule: "Исключение корня СКАК/СКОЧ перед Ч" }
+            ];
+
+            container.innerHTML = defaultTroubles.map(item => `
+                <div class="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 flex items-start gap-2.5">
+                    <span class="w-6 h-6 rounded-lg bg-rose-50 dark:bg-rose-950 text-rose-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                        ${item.task}
+                    </span>
+                    <div class="flex-1 min-w-0">
+                        <div class="font-bold text-xs text-slate-900 dark:text-white truncate">
+                            ${item.word.replace('..', `[ ${item.target.toUpperCase()} ]`)}
+                        </div>
+                        <p class="text-[11px] text-slate-400 truncate mt-0.5">${item.rule}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function exportStudentsToCSV() {
+            if (!cachedAdminStudents || cachedAdminStudents.length === 0) return;
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "Имя;ID/Email;Верно;Всего;Стрик;Точность;Ошибок;Источник\r\n";
+
+            cachedAdminStudents.forEach(st => {
+                const acc = st.totalAnswers > 0 ? Math.round((st.correctAnswers / st.totalAnswers) * 100) : 0;
+                csvContent += `"${st.name}";"${st.id}";${st.correctAnswers};${st.totalAnswers};${st.maxStreak};${acc}%;${st.mistakesCount};"${st.source}"\r\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `ege_students_report_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function toggleMistakesModal(show) {
+            const modal = document.getElementById('mistakes-modal');
+            if (show) {
+                renderMistakesList();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function renderMistakesList() {
+            const listEl = document.getElementById('mistakes-list');
+            const countEl = document.getElementById('modal-mistakes-count');
+            const practiceBtn = document.getElementById('practice-mistakes-btn');
+            
+            countEl.textContent = window.state.mistakes.length;
+            practiceBtn.disabled = window.state.mistakes.length === 0;
+
+            if (window.state.mistakes.length === 0) {
+                listEl.innerHTML = `
+                    <div class="py-12 text-center text-slate-400">
+                        <i class="fa-regular fa-circle-check text-4xl mb-3 text-emerald-500"></i>
+                        <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Список ошибок пуст!</p>
+                        <p class="text-xs text-slate-400 mt-1">Отличная работа, все слова решены верно.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = window.state.mistakes.map((m, index) => `
+                <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800 flex items-start justify-between gap-3">
+                    <div>
+                        <div class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <span>${m.word.replace('..', `[ ${m.target.toUpperCase()} ]`)}</span>
+                            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+                                Задание ${m.taskNumber}
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-snug">${m.rule}</p>
+                    </div>
+                    <button onclick="removeMistake(${index})" title="Удалить из списка" class="text-slate-400 hover:text-rose-500 p-1 transition cursor-pointer">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeMistake(index) {
+            window.state.mistakes.splice(index, 1);
+            saveState();
+            updateMistakesBadge();
+            renderMistakesList();
+        }
+
+        function clearMistakes() {
+            window.state.mistakes = [];
+            saveState();
+            updateMistakesBadge();
+            renderMistakesList();
+        }
+
+        function startMistakesMode() {
+            toggleMistakesModal(false);
+            setMode('mistakes');
+        }
+
+        function resetStats() {
+            window.state.streak = 0;
+            window.state.maxStreak = 0;
+            window.state.totalAnswers = 0;
+            window.state.correctAnswers = 0;
+            saveState();
+            updateStatsUI();
+        }
+
+        function handleProfileClick() {
+            const dropdown = document.getElementById('profile-dropdown');
+            if (currentUser) {
+                dropdown.classList.toggle('hidden');
+            } else {
+                toggleAuthModal(true);
+            }
+        }
+
+        function toggleAuthModal(show) {
+            const modal = document.getElementById('auth-modal');
+            const errorDiv = document.getElementById('auth-error');
+            if (errorDiv) errorDiv.classList.add('hidden');
+            
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function switchAuthTab(tab) {
+            authCurrentTab = tab;
+            const nameGroup = document.getElementById('auth-name-group');
+            const title = document.getElementById('auth-title');
+            const subtitle = document.getElementById('auth-subtitle');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const tabLogin = document.getElementById('auth-tab-login');
+            const tabSignup = document.getElementById('auth-tab-signup');
+            const errorDiv = document.getElementById('auth-error');
+            errorDiv.classList.add('hidden');
+
+            if (tab === 'signup') {
+                nameGroup.classList.remove('hidden');
+                document.getElementById('auth-name-input').required = true;
+                title.textContent = 'Создание аккаунта';
+                subtitle.textContent = 'Зарегистрируйтесь для сохранения результатов';
+                submitBtn.textContent = 'Зарегистрироваться';
+                
+                tabSignup.className = 'flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400 transition cursor-pointer';
+                tabLogin.className = 'flex-1 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition cursor-pointer';
+            } else {
+                nameGroup.classList.add('hidden');
+                document.getElementById('auth-name-input').required = false;
+                title.textContent = 'Вход в профиль';
+                subtitle.textContent = 'Сохраняйте личный прогресс и ошибки';
+                submitBtn.textContent = 'Войти';
+
+                tabLogin.className = 'flex-1 py-1.5 rounded-lg bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400 transition cursor-pointer';
+                tabSignup.className = 'flex-1 py-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition cursor-pointer';
+            }
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('auth-email-input').value.trim().toLowerCase();
+            const passwordInput = document.getElementById('auth-password-input').value;
+            const nameInput = document.getElementById('auth-name-input').value.trim();
+            const errorDiv = document.getElementById('auth-error');
+
+            const accounts = getAccounts();
+
+            if (authCurrentTab === 'signup') {
+                if (accounts.some(acc => acc.email === emailInput)) {
+                    errorDiv.textContent = 'Пользователь с таким email уже существует.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                const newUser = {
+                    name: nameInput || emailInput.split('@')[0],
+                    email: emailInput,
+                    password: passwordInput
+                };
+
+                accounts.push(newUser);
+                saveAccounts(accounts);
+
+                currentUser = { name: newUser.name, email: newUser.email };
+                localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+                saveState();
+            } else {
+                const existing = accounts.find(acc => acc.email === emailInput && acc.password === passwordInput);
+                if (!existing) {
+                    errorDiv.textContent = 'Неверный email или пароль.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                currentUser = { name: existing.name, email: existing.email };
+                localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentUser));
+            }
+
+            toggleAuthModal(false);
+            loadState();
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem(CURRENT_USER_KEY);
+            document.getElementById('profile-dropdown').classList.add('hidden');
+            loadState();
+        }
+
+        function toggleLeaderboardModal(show) {
+            const modal = document.getElementById('leaderboard-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function toggleAIModal(show) {
+            const modal = document.getElementById('ai-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            localStorage.setItem('ege_theme_mode', isDark ? 'dark' : 'light');
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('ege_theme_mode');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        async function askAITutor() {
+            if (!currentCard) return;
+            toggleAIModal(true);
+            const wordEl = document.getElementById('ai-modal-word');
+            const bodyEl = document.getElementById('ai-modal-body');
+
+            wordEl.textContent = `Разбор: ${currentCard.word.replace('..', currentCard.target.toUpperCase())}`;
+            bodyEl.innerHTML = `
+                <div class="space-y-3">
+                    <div class="p-3.5 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/50 border border-indigo-200/60 dark:border-indigo-900/50">
+                        <div class="text-xs font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider mb-1">Лексическое значение</div>
+                        <p class="text-slate-800 dark:text-slate-200">${currentCard.meaning || "Уточняется по толковому словарю."}</p>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200/70 dark:border-amber-900/50">
+                        <div class="text-xs font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider mb-1">Орфографическое правило ЕГЭ</div>
+                        <p class="text-slate-800 dark:text-slate-200 font-medium">${currentCard.rule}</p>
+                    </div>
+                    <div class="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-900/40">
+                        <div class="text-xs font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider mb-1">Как легко запомнить на экзамене</div>
+                        <p class="text-slate-700 dark:text-slate-300 text-xs leading-relaxed">
+                            Обратите внимание на морфемный состав и значение приставки/суффикса. В слове <strong class="text-emerald-600">${currentCard.word.replace('..', currentCard.target.toUpperCase())}</strong> ошибка часто допускается из-за путаницы с омонимичными формами.
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function generateAIQuestion() {
+            const nextMode = currentMode === 'mix' || currentMode === 'mistakes' ? [9, 10, 11, 12][Math.floor(Math.random() * 4)] : Number(currentMode);
+            const pool = DATABASE.filter(item => item.taskNumber === nextMode);
+            const randomItem = pool[Math.floor(Math.random() * pool.length)];
+            currentCard = { ...randomItem, isAI: true };
+            isLocked = false;
+            renderCard();
+        }
+
+        window.toggleAdminAuthModal = toggleAdminAuthModal;
+        window.handleAdminLogin = handleAdminLogin;
+        window.toggleAdminDashboard = toggleAdminDashboard;
+        window.filterAdminStudents = filterAdminStudents;
+        window.exportStudentsToCSV = exportStudentsToCSV;
+        window.toggleLeaderboardModal = toggleLeaderboardModal;
+        window.handleProfileClick = handleProfileClick;
+        window.toggleAuthModal = toggleAuthModal;
+        window.switchAuthTab = switchAuthTab;
+        window.handleAuthSubmit = handleAuthSubmit;
+        window.logoutUser = logoutUser;
+        window.setMode = setMode;
+        window.nextCard = nextCard;
+        window.handleAnswer = handleAnswer;
+        window.toggleMistakesModal = toggleMistakesModal;
+        window.removeMistake = removeMistake;
+        window.clearMistakes = clearMistakes;
+        window.startMistakesMode = startMistakesMode;
+        window.resetStats = resetStats;
+        window.toggleDarkMode = toggleDarkMode;
+        window.askAITutor = askAITutor;
+        window.generateAIQuestion = generateAIQuestion;
+        window.toggleAIModal = toggleAIModal;
+        window.updateStatsUI = updateStatsUI;
+        window.updateMistakesBadge = updateMistakesBadge;
+        window.updateUserUI = updateUserUI;
+        window.DATABASE = DATABASE;
+
         window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a' || e.key === 'Ф' || e.key === 'ф')) {
+                e.preventDefault();
+                toggleAdminAuthModal(true);
+                return;
+            }
+
             if (e.key === 'Escape') {
                 toggleMistakesModal(false);
                 toggleAIModal(false);
+                toggleAdminAuthModal(false);
+                toggleAdminDashboard(false);
+                toggleAuthModal(false);
+                toggleLeaderboardModal(false);
                 return;
             }
 
@@ -874,136 +1471,133 @@
             }
         });
 
-        // ========================================================
-        // 7. СТАТИСТИКА И МОДАЛКИ
-        // ========================================================
-        function updateStatsUI() {
-            document.getElementById('streak-counter').textContent = state.streak;
-            document.getElementById('stat-total').textContent = state.totalAnswers;
-            document.getElementById('stat-correct').textContent = state.correctAnswers;
-            document.getElementById('stat-max-streak').textContent = `${state.maxStreak} 🔥`;
-
-            const accuracy = state.totalAnswers > 0 
-                ? Math.round((state.correctAnswers / state.totalAnswers) * 100) 
-                : 100;
-            document.getElementById('accuracy-counter').textContent = `${accuracy}%`;
-        }
-
-        function updateMistakesBadge() {
-            const badge = document.getElementById('mistakes-badge');
-            const count = state.mistakes.length;
-            if (count > 0) {
-                badge.textContent = count;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
+        document.addEventListener('click', (e) => {
+            const container = document.getElementById('auth-header-container');
+            const dropdown = document.getElementById('profile-dropdown');
+            if (container && dropdown && !container.contains(e.target)) {
+                dropdown.classList.add('hidden');
             }
-        }
-
-        function toggleMistakesModal(show) {
-            const modal = document.getElementById('mistakes-modal');
-            if (show) {
-                renderMistakesList();
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } else {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }
-        }
-
-        function renderMistakesList() {
-            const listEl = document.getElementById('mistakes-list');
-            const countEl = document.getElementById('modal-mistakes-count');
-            const practiceBtn = document.getElementById('practice-mistakes-btn');
-            
-            countEl.textContent = state.mistakes.length;
-            practiceBtn.disabled = state.mistakes.length === 0;
-
-            if (state.mistakes.length === 0) {
-                listEl.innerHTML = `
-                    <div class="py-12 text-center text-slate-400">
-                        <i class="fa-regular fa-circle-check text-4xl mb-3 text-emerald-500"></i>
-                        <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Список ошибок пуст!</p>
-                        <p class="text-xs text-slate-400 mt-1">Отличная работа, все слова решены верно.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            listEl.innerHTML = state.mistakes.map((m, index) => `
-                <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800 flex items-start justify-between gap-3">
-                    <div>
-                        <div class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <span>${m.word.replace('..', `[ ${m.target.toUpperCase()} ]`)}</span>
-                            <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
-                                Задание ${m.taskNumber}
-                            </span>
-                        </div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-snug">${m.rule}</p>
-                    </div>
-                    <button onclick="removeMistake(${index})" title="Удалить из списка" class="text-slate-400 hover:text-rose-500 p-1 transition cursor-pointer">
-                        <i class="fa-solid fa-trash-can text-xs"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function removeMistake(index) {
-            state.mistakes.splice(index, 1);
-            saveState();
-            updateMistakesBadge();
-            renderMistakesList();
-        }
-
-        function clearMistakes() {
-            if (confirm('Вы уверены, что хотите очистить весь список ошибок?')) {
-                state.mistakes = [];
-                saveState();
-                updateMistakesBadge();
-                renderMistakesList();
-            }
-        }
-
-        function startMistakesMode() {
-            toggleMistakesModal(false);
-            setMode('mistakes');
-        }
-
-        function resetStats() {
-            if (confirm('Сбросить всю накопленную статистику и стрик?')) {
-                state.streak = 0;
-                state.maxStreak = 0;
-                state.totalAnswers = 0;
-                state.correctAnswers = 0;
-                saveState();
-                updateStatsUI();
-            }
-        }
-
-        // ========================================================
-        // 8. ТЕМА И СТАРТ
-        // ========================================================
-        function toggleDarkMode() {
-            const html = document.documentElement;
-            const isDark = html.classList.toggle('dark');
-            localStorage.setItem('ege_theme_mode', isDark ? 'dark' : 'light');
-        }
-
-        function initTheme() {
-            const savedTheme = localStorage.getItem('ege_theme_mode');
-            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        }
+        });
 
         window.addEventListener('DOMContentLoaded', () => {
             initTheme();
             loadState();
             setMode('mix');
+            if (typeof window.initCloudStorage === 'function') {
+                window.initCloudStorage();
+            }
         });
+    </script>
+
+    <!-- Опциональный модуль Firebase для облачной синхронизации -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ege-trainer-app';
+        let firebaseConfig = null;
+        try {
+            firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        } catch (e) {}
+
+        let db = null;
+        let auth = null;
+        let currentUserId = null;
+        let isCloudAvailable = false;
+
+        async function initCloudStorage() {
+            if (!firebaseConfig) return;
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                currentUserId = auth.currentUser?.uid || 'guest-' + crypto.randomUUID();
+                isCloudAvailable = true;
+
+                await loadCloudUserState();
+                listenToLeaderboard();
+            } catch (err) {
+                console.warn("Облако работает в автономном режиме:", err);
+            }
+        }
+
+        async function loadCloudUserState() {
+            if (!isCloudAvailable || !auth?.currentUser) return;
+            try {
+                const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'profile', 'state');
+                const snap = await getDoc(userDocRef);
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.state) {
+                        window.state = {
+                            streak: data.state.streak || 0,
+                            maxStreak: data.state.maxStreak || 0,
+                            totalAnswers: data.state.totalAnswers || 0,
+                            correctAnswers: data.state.correctAnswers || 0,
+                            mistakes: data.state.mistakes ? JSON.parse(data.state.mistakes) : []
+                        };
+                        window.updateStatsUI();
+                        window.updateMistakesBadge();
+                    }
+                }
+            } catch (err) {
+                console.warn("Ошибка загрузки данных облака:", err);
+            }
+        }
+
+        async function saveCloudState() {
+            if (!isCloudAvailable || !auth?.currentUser) return;
+            try {
+                const stateData = {
+                    streak: window.state.streak,
+                    maxStreak: window.state.maxStreak,
+                    totalAnswers: window.state.totalAnswers,
+                    correctAnswers: window.state.correctAnswers,
+                    mistakes: JSON.stringify(window.state.mistakes)
+                };
+
+                const userName = window.currentUser?.name || `Ученик-${currentUserId.slice(0, 5)}`;
+                const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'profile', 'state');
+                await setDoc(userDocRef, { state: stateData, userName, updatedAt: Date.now() }, { merge: true });
+
+                const publicLeaderRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', currentUserId);
+                await setDoc(publicLeaderRef, {
+                    userId: currentUserId,
+                    userName,
+                    correctAnswers: window.state.correctAnswers,
+                    maxStreak: window.state.maxStreak,
+                    totalAnswers: window.state.totalAnswers,
+                    updatedAt: Date.now()
+                }, { merge: true });
+            } catch (err) {}
+        }
+
+        function listenToLeaderboard() {
+            if (!isCloudAvailable || !db) return;
+            try {
+                const leaderColRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+                onSnapshot(leaderColRef, (snapshot) => {
+                    const leaders = [];
+                    snapshot.forEach(docSnap => leaders.push(docSnap.data()));
+                    leaders.sort((a, b) => (b.correctAnswers || 0) - (a.correctAnswers || 0));
+                    window.cachedLeaders = leaders;
+                    if (window.isAdminOpen) window.renderAdminDashboard();
+                }, () => {});
+            } catch (e) {}
+        }
+
+        window.saveCloudState = saveCloudState;
+        window.initCloudStorage = initCloudStorage;
+        window.getCurrentUserId = () => currentUserId;
+        window.getCloudLeaders = () => (window.cachedLeaders || []);
     </script>
 </body>
 </html>
